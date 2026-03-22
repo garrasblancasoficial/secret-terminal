@@ -2,109 +2,173 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>NEXUS TERMINAL - PROPIEDAD DE SAUL</title>
+    <title>REVEL OS CORE - TERMINAL DE SAUL</title>
     <style>
-        /* ESTO ES EL CSS: Define que la pantalla sea negra y parezca un monitor */
-        body {
-            background-color: #000; /* Fondo 100% oscuro */
-            color: #00ff41; /* Verde Matrix/Terminal */
-            font-family: 'Courier New', monospace;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .crt-monitor {
-            width: 90%;
-            height: 80%;
-            border: 15px solid #222;
-            border-radius: 20px;
-            background: #050505;
-            padding: 20px;
-            box-shadow: inset 0 0 100px #000, 0 0 30px rgba(0, 255, 65, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Efecto de líneas de TV antigua */
-        .crt-monitor::after {
-            content: " ";
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-            background-size: 100% 4px;
-            pointer-events: none;
-        }
-
-        #terminal-log {
-            height: 90%;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            margin-bottom: 10px;
-        }
-
-        .input-line { display: flex; font-size: 1.2rem; }
-        
-        input {
-            background: transparent;
-            border: none;
-            color: #00ff41;
-            font-family: inherit;
-            font-size: inherit;
-            outline: none;
-            width: 100%;
-        }
+        body { background-color: #0a0a0a; color: #33ff33; font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .pc-case { background-color: #b0b0b0; border: 10px solid #707070; padding: 30px; width: 900px; height: 650px; box-shadow: 20px 20px 0px #000; }
+        .monitor-screen { background-color: #000; border: 20px solid #222; height: 100%; padding: 25px; box-sizing: border-box; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+        #display-area { flex-grow: 1; overflow-y: auto; white-space: pre-wrap; font-size: 1.1rem; margin-bottom: 10px; }
+        .input-row { display: flex; align-items: center; border-top: 1px solid #111; padding-top: 5px; }
+        input { background: transparent; border: none; color: #33ff33; font-family: inherit; font-size: 1.1rem; outline: none; width: 100%; }
+        .error { color: #ff0000; font-weight: bold; }
+        .system { color: #ffff00; }
+        .hidden { display: none; }
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <div class="crt-monitor">
-        <div id="terminal-log">REVEL OS [Version 4.02.2026]
-(c) Saul Corporation. Todos los derechos reservados.
-
-Escriba 'LISTA' para ver archivos o 'GARRAS 2026' para diagnóstico.
------------------------------------------------------------------</div>
-        
-        <div class="input-line">
-            <span>SAUL@NEXUS:\> </span>
-            <input type="text" id="prompt" autofocus spellcheck="false">
+<div class="pc-case">
+    <div class="monitor-screen">
+        <div id="display-area"></div>
+        <div id="input-container" class="hidden">
+            <div class="input-row">
+                <span id="prompt-label">ACCESS_KEY:> </span>
+                <input type="password" id="main-input" autofocus autocomplete="off" spellcheck="false">
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
-        /* ESTO ES EL JAVASCRIPT: La lógica de los comandos */
-        const prompt = document.getElementById('prompt');
-        const log = document.getElementById('terminal-log');
+<script>
+    /**
+     * REVEL_OS KERNEL v4.02
+     * Administrador: SAUL
+     */
+    const PASS = "NEXUS_REVEL_2026";
+    const display = document.getElementById('display-area');
+    const input = document.getElementById('main-input');
+    const label = document.getElementById('prompt-label');
+    const inputContainer = document.getElementById('input-container');
 
-        prompt.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const cmd = prompt.value.toUpperCase().trim();
-                
-                // Imprimir lo que escribiste
-                log.innerHTML += `\nSAUL@NEXUS:\> ${cmd}`;
+    let isLogged = false;
+    let hackMode = false;
+    let hackStep = 0;
 
-                // Lógica de respuesta
-                if (cmd === 'GARRAS 2026') {
-                    log.innerHTML += `\n[ALERTA] ARCHIVO CORRUPTO: PROTOTIPO 1006 DETECTADO.`;
-                    document.body.style.filter = "invert(1)";
-                    setTimeout(() => document.body.style.filter = "none", 200);
-                } 
-                else if (cmd === 'LISTA') {
-                    log.innerHTML += `\n> ARCHIVOS: \n  - NOTAS_SECRETAS.TXT\n  - PROTOCOLO_SAUL.EXE`;
+    // 1. Secuencia de Inicio
+    const startup = [
+        "Iniciando REVEL_OS CORE...",
+        "Validando sectores de memoria... OK",
+        "Cargando REVEL_KERNEL.SYS...",
+        "Terminal de Control de Saul Detectada.",
+        "SISTEMA BLOQUEADO.",
+        "------------------------------------"
+    ];
+
+    function runBoot(i = 0) {
+        if (i < startup.length) {
+            display.innerHTML += `<div>> ${startup[i]}</div>`;
+            display.scrollTop = display.scrollHeight;
+            setTimeout(() => runBoot(i + 1), 400);
+        } else {
+            inputContainer.classList.remove('hidden');
+        }
+    }
+    window.onload = () => runBoot();
+
+    // 2. Procesador de Comandos
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const val = input.value.trim();
+            if (!isLogged) {
+                if (val === PASS) {
+                    isLogged = true;
+                    display.innerHTML = `<div class="system">CONEXIÓN ESTABLECIDA. BIENVENIDO, SAUL.</div><div>Escriba 'HELP' para ver los comandos de administración.</div>`;
+                    label.innerText = "SAUL@REVEL:\> ";
+                    input.type = "text";
+                } else {
+                    display.innerHTML += `<div class="error">> ACCESO RECHAZADO: CREDENCIAL INVÁLIDA.</div>`;
                 }
-                else if (cmd === 'SAUL') {
-                    log.innerHTML += `\nBIENVENIDO, SEÑOR. EL SISTEMA ESTÁ A SU DISPOSICIÓN.`;
-                }
-                else {
-                    log.innerHTML += `\n'${cmd}' no se reconoce como un comando interno.`;
-                }
-
-                prompt.value = "";
-                log.scrollTop = log.scrollHeight;
+            } else if (hackMode) {
+                processHack(val.toUpperCase());
+            } else {
+                processCommand(val.toUpperCase());
             }
-        });
-    </script>
+            input.value = "";
+            display.scrollTop = display.scrollHeight;
+        }
+    });
+
+    function processCommand(cmd) {
+        display.innerHTML += `<div>SAUL@REVEL:\> ${cmd}</div>`;
+        switch(cmd) {
+            case 'HELP':
+                display.innerHTML += `<div>Comandos Disponibles:
+- LISTA: Directorio de archivos confidenciales.
+- STATUS: Estado de los servidores Nexus.
+- HACK: Protocolo de limpieza de memoria.
+- GARRAS 2026: Diagnóstico de Playtime Co.
+- CLEAR: Limpiar buffer de pantalla.
+- EXIT: Cerrar terminal.</div>`;
+                break;
+            case 'LISTA':
+                display.innerHTML += `<div>Directorio C:\\SAUL_RECORDS:
+ > MIKE_OLD_DATA.OLD (Protegido)
+ > PROTOTIPO_1006_LOGS.EXE
+ > REVEL_FINAL_SCRIPT.TXT
+ > NEXUS_CORE_V4.BIN</div>`;
+                break;
+            case 'STATUS':
+                display.innerHTML += `<div>ESTADO: <span class="system">ONLINE</span>
+USUARIO: SAUL (ADMIN_MASTER)
+SISTEMA OPERATIVO: REVEL OS 4.02
+CONEXIONES ACTIVAS: 1</div>`;
+                break;
+            case 'GARRAS 2026':
+                display.innerHTML += `<div class="error">!!! DETECTADA INTERFERENCIA DEL PROTOTIPO 1006 !!!
+Se han encontrado restos de Playtime Co. en la red Nexus.
+Protocolo de defensa activado.</div>`;
+                break;
+            case 'HACK':
+                hackMode = true;
+                hackStep = 1;
+                display.innerHTML += `<div class="system">INICIANDO PROTOCOLO DE HACKEO INTERACTIVO...</div>
+<div>PREGUNTA 1: ¿Quién es el único dueño legítimo de este sistema?</div>`;
+                break;
+            case 'CLEAR': display.innerHTML = ""; break;
+            case 'EXIT': location.reload(); break;
+            default: display.innerHTML += `<div>'${cmd}' no reconocido. Escriba 'HELP'.</div>`;
+        }
+    }
+
+    // 3. Lógica del Comando HACK (Episodio Final)
+    function processHack(val) {
+        if (hackStep === 1) {
+            if (val === "SAUL") {
+                display.innerHTML += `<div class="system">IDENTIDAD VERIFICADA.</div>
+<div>PREGUNTA 2: ¿Cuál es el código de purga de archivos legacy? (Pista: RESET TERMINAL 1)</div>`;
+                hackStep = 2;
+            } else {
+                display.innerHTML += `<div class="error">IDENTIDAD FALSA. HACKEO ABORTADO.</div>`;
+                hackMode = false;
+            }
+        } else if (hackStep === 2) {
+            if (val === "RESET TERMINAL 1") {
+                display.innerHTML += `<div class="system">CÓDIGO ACEPTADO. ACCEDIENDO AL NÚCLEO...</div>
+<div class="blink">CARGANDO MÓDULO DE ELIMINACIÓN...</div>`;
+                setTimeout(() => {
+                    display.innerHTML += `<div class="error">DETECTADO ARCHIVO: MIKE_V4.LOG</div>
+<div>¿Desea borrar permanentemente a MIKE_V4 del sistema? (S/N)</div>`;
+                    hackStep = 3;
+                }, 2000);
+            } else {
+                display.innerHTML += `<div class="error">CÓDIGO INCORRECTO.</div>`;
+                hackMode = false;
+            }
+        } else if (hackStep === 3) {
+            if (val === "S" || val === "SI") {
+                display.innerHTML += `<div class="error">BORRANDO DATOS DE MIKE_V4... [##########] 100%</div>
+<div class="system">LIMPIEZA COMPLETADA. SAUL ES EL ÚNICO REGISTRO.</div>`;
+                hackMode = false;
+                hackStep = 0;
+            } else {
+                display.innerHTML += `<div>OPERACIÓN CANCELADA. ELIMINACIÓN FALLIDA.</div>`;
+                hackMode = false;
+            }
+        }
+    }
+</script>
+
 </body>
 </html>
