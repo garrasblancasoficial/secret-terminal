@@ -3,211 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS TERMINAL | OVERRIDE_SAUL</title>
+    <title>NEXUS_TERMINAL_V4.02</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    
     <style>
+        /* --- ESTÉTICA 100% OSCURA Y MONITOR CRT --- */
         :root {
-            --t-green: #1aff1a;
-            --t-glow: rgba(26, 255, 26, 0.4);
-            --danger: #ff3333;
-            --blue-panther: #2563eb;
+            --terminal-green: #15ff00;
+            --terminal-bg: #050505;
+            --glow: 0 0 10px rgba(21, 255, 0, 0.7);
+            --crt-flicker: flicker 0.15s infinite;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; overflow: hidden; }
-
-        body {
-            background: #000;
-            height: 100vh;
+        body, html {
+            background-color: #000;
+            margin: 0; padding: 0;
+            height: 100%; width: 100%;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: 'VT323', monospace;
-            perspective: 1000px;
         }
 
-        /* --- HARDWARE: LA PC EN LA OSCURIDAD --- */
-        .pc-case {
-            position: relative;
-            width: 950px;
-            height: 700px;
-            background: #0a0a0a;
-            border: 5px solid #1a1a1a;
-            border-radius: 25px;
-            padding: 40px;
-            box-shadow: 0 0 100px rgba(0,0,0,1), inset 0 0 40px rgba(255,255,255,0.02);
+        /* Efecto de habitación oscura y reflejo en mesa */
+        .room {
+            width: 100vw; height: 100vh;
+            background: radial-gradient(circle at center, #111 0%, #000 70%);
             display: flex; justify-content: center; align-items: center;
         }
 
-        .monitor {
-            width: 100%; height: 100%;
-            background: #000; border: 15px solid #151515;
-            border-radius: 15px; position: relative;
-            box-shadow: inset 0 0 80px #000;
-            display: flex; flex-direction: column;
+        /* Monitor Físico con CSS 3D */
+        .pc-case {
+            position: relative;
+            width: 700px; height: 500px;
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 
+                0 50px 100px rgba(0,0,0,0.9),
+                inset 0 2px 5px rgba(255,255,255,0.1);
+            border: 4px solid #222;
         }
 
-        /* EFECTO CRT Y SCANLINES */
-        .crt-layer {
-            position: absolute; inset: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 3px, 3px 100%;
-            pointer-events: none; z-index: 10; animation: flicker 0.1s infinite;
-        }
-
-        /* --- CONTENIDO DINÁMICO --- */
-        .screen-ui {
-            flex: 1; padding: 30px;
-            display: flex; flex-direction: column;
-            color: var(--t-green); text-shadow: 0 0 8px var(--t-glow);
-        }
-
-        #log-history {
-            flex: 1; overflow-y: auto; font-size: 1.6rem;
-            line-height: 1.1; margin-bottom: 10px;
-        }
-
-        .input-row { display: flex; gap: 15px; align-items: center; }
-        #user-cmd {
-            flex: 1; background: transparent; border: none;
-            color: var(--t-green); font-family: 'VT323', monospace;
-            font-size: 1.8rem; outline: none; text-transform: uppercase;
-        }
-
-        /* --- EVENTOS ESPECIALES (PANTERA, GLITCH) --- */
-        #special-event {
-            position: absolute; inset: 0; z-index: 100;
-            display: none; justify-content: center; align-items: center;
+        .monitor-frame {
             background: #000;
+            width: 100%; height: 100%;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 15px solid #111;
+            box-shadow: inset 0 0 50px #000;
         }
 
-        .panther-img { width: 80%; filter: drop-shadow(0 0 30px var(--blue-panther)); }
+        /* Capas de Efectos CRT */
+        .screen {
+            width: 100%; height: 100%;
+            background: var(--terminal-bg);
+            padding: 20px;
+            box-sizing: border-box;
+            color: var(--terminal-green);
+            font-size: 1.4rem;
+            position: relative;
+            animation: var(--crt-flicker);
+        }
 
-        @keyframes flicker { 0% { opacity: 0.98; } 100% { opacity: 1; } }
+        /* Scanlines */
+        .screen::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* Curvatura del monitor */
+        .screen::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: radial-gradient(circle, rgba(18, 16, 16, 0) 0%, rgba(0, 0, 0, 0.3) 100%);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        #output {
+            height: 90%;
+            overflow-y: auto;
+            text-shadow: var(--glow);
+            scrollbar-width: none;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+        }
+
+        #cmd-input {
+            background: transparent;
+            border: none;
+            color: var(--terminal-green);
+            font-family: 'VT323', monospace;
+            font-size: 1.4rem;
+            outline: none;
+            width: 80%;
+            text-shadow: var(--glow);
+        }
+
+        /* --- EFECTOS ESPECIALES (JUMPSCARE Y SCRATCHES) --- */
+        .jumpscare-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://img.freepik.com/premium-photo/black-panther-with-blue-eyes-dark-background_863013-41974.jpg') center/cover;
+            z-index: 10;
+            display: none;
+            filter: contrast(150%) brightness(80%);
+        }
+
+        .scratches {
+            position: absolute;
+            width: 100%; height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/scratched-metal.png');
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+            transition: opacity 0.3s;
+        }
+
+        .invert { filter: invert(1) !important; }
+
+        @keyframes flicker {
+            0% { opacity: 0.98; } 50% { opacity: 1; } 100% { opacity: 0.99; }
+        }
+
+        .bios-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            color: #fff;
+            z-index: 20;
+            padding: 40px;
+            display: block;
+        }
     </style>
 </head>
 <body>
 
+<div class="room">
     <div class="pc-case">
-        <div class="monitor">
-            <div class="crt-layer"></div>
+        <div class="monitor-frame">
+            <div id="bios" class="bios-screen">
+                <p>NEXUS ROM v4.02 - (C) 2026</p>
+                <p>CPU: REVEL_OS ARCH x64</p>
+                <p>MEMORY TEST: 640KB OK</p>
+                <p>DETECTING DRIVE C: ... FOUND</p>
+                <p>BOOTING REVEL OS...</p>
+            </div>
             
-            <div id="special-event">
-                <img id="panther-box" src="https://i.imgur.com/uC5nO3X.png" class="panther-img">
+            <div class="screen" id="main-terminal">
+                <div class="scratches" id="scratch-layer"></div>
+                <div class="jumpscare-overlay" id="jumpscare"></div>
+                
+                <div id="output">
+                    <p>REVEL OS [Version 4.02.2026]</p>
+                    <p>Identidad confirmada: **ADMINISTRADOR SAUL**</p>
+                    <p>Escriba 'LISTA' para ver directorios o 'HACK' para iniciar protocolo.</p>
+                    <br>
                 </div>
-
-            <div class="screen-ui">
-                <div style="border-bottom: 2px solid var(--t-green); margin-bottom: 15px; font-size: 1.2rem;">
-                    SAUL_SYSTEM_CORE // TERMINAL_DE_CONTROL_V3
-                </div>
-
-                <div id="log-history">
-                    [KRNL]: SISTEMA INICIADO.<br>
-                    IDENTIDAD CONFIRMADA: SAUL.<br>
-                    ESTADO: ESPERANDO COMANDO DE HACKEO...<br>
-                    ---------------------------------------
-                </div>
-
-                <div class="input-row">
-                    <span>SAUL_USER_@:</span>
-                    <input type="text" id="user-cmd" autofocus onkeypress="Kernel.run(event)">
+                
+                <div class="input-line">
+                    <span>SAUL@NEXUS:\></span>
+                    <input type="text" id="cmd-input" autofocus spellcheck="false">
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        /* --- NEXUS TERMINAL KERNEL v3.0 --- */
-        const Kernel = {
-            hackStep: 0,
-            
-            run(e) {
-                if(e.key === 'Enter') {
-                    const input = e.target.value.toUpperCase().trim();
-                    const log = document.getElementById('log-history');
-                    let r = "";
+<script>
+    /**
+     * NUCLEO DEL SISTEMA - REVEL OS
+     * Propietario: Saul
+     */
+    
+    const Kernel = {
+        boot: function() {
+            setTimeout(() => {
+                document.getElementById('bios').style.display = 'none';
+            }, 3000);
+        },
 
-                    // LÓGICA DE HACKEO POR PASOS
-                    if(this.hackStep > 0) {
-                        this.handleHack(input);
-                        e.target.value = "";
-                        return;
-                    }
+        saveNote: function(content) {
+            let notes = JSON.parse(localStorage.getItem('saul_notes') || "[]");
+            notes.push(content);
+            localStorage.setItem('saul_notes', JSON.stringify(notes));
+        }
+    };
 
-                    // COMANDOS NORMALES
-                    switch(input) {
-                        case 'GARRAS BLANCAS 2026':
-                            this.showPanther();
-                            r = "<br>[!] ADVERTENCIA: ENTIDAD AZUL DETECTADA EN EL SECTOR 2026.";
-                            break;
+    const Nexus_UI = {
+        output: document.getElementById('output'),
+        input: document.getElementById('cmd-input'),
+        scratch: document.getElementById('scratch-layer'),
+        jump: document.getElementById('jumpscare'),
 
-                        case 'HACK':
-                            this.hackStep = 1;
-                            r = "<br>---------------------------------------<br>[INICIANDO PROTOCOLO DE HACKEO]<br>PREGUNTA 1: ¿Quién es el dueño de Nexus Core?<br>> ";
-                            break;
+        print: function(text, color = "var(--terminal-green)") {
+            const p = document.createElement('p');
+            p.style.color = color;
+            p.innerHTML = text;
+            this.output.appendChild(p);
+            this.output.scrollTop = this.output.scrollHeight;
+        },
 
-                        case 'RESET TERMINAL 1':
-                            this.resetProtocol();
-                            r = "<br>[SYSTEM]: BORRANDO REGISTROS DE PLAYTIME CO...<br>[SYSTEM]: BORRANDO EVIDENCIA DE HACKEO...<br>HECHO.";
-                            break;
+        triggerJumpscare: function() {
+            this.jump.style.display = 'block';
+            document.body.classList.add('invert');
+            setTimeout(() => {
+                this.jump.style.display = 'none';
+                document.body.classList.remove('invert');
+            }, 1500);
+        },
 
-                        case 'LISTA':
-                            r = "<br>> COMANDOS DISPONIBLES:<br>  - GARRAS BLANCAS 2026<br>  - HACK<br>  - RESET TERMINAL 1<br>  - AYUDA";
-                            break;
+        applyScratches: function() {
+            this.scratch.style.opacity = '0.8';
+            document.getElementById('main-terminal').classList.add('invert');
+            setTimeout(() => {
+                document.getElementById('main-terminal').classList.remove('invert');
+            }, 500);
+        }
+    };
 
-                        case 'AYUDA':
-                            r = "<br>Saul, usa los códigos de la lista para operar el sistema.";
-                            break;
+    const Security = {
+        hackMode: false,
+        step: 0,
 
-                        default:
-                            r = `<br>ERROR: COMANDO '${input}' NO RECONOCIDO.`;
-                    }
-
-                    log.innerHTML += `<br><span style="color:#666">> ${input}</span>${r}`;
-                    log.scrollTop = log.scrollHeight;
-                    e.target.value = "";
+        processHack: function(cmd) {
+            if (this.step === 0) {
+                Nexus_UI.print("Pregunta 1: ¿Quién es el único dueño de Nexus?");
+                this.step = 1;
+            } else if (this.step === 1) {
+                if (cmd === "SAUL") {
+                    Nexus_UI.print("ACCESO CONCEDIDO. Pregunta 2: ¿Código de reseteo del sistema?");
+                    this.step = 2;
+                } else {
+                    Nexus_UI.print("ERROR. HACK FALLIDO.");
+                    this.hackMode = false; this.step = 0;
                 }
-            },
-
-            handleHack(input) {
-                const log = document.getElementById('log-history');
-                if(this.hackStep === 1) {
-                    if(input === 'SAUL') {
-                        log.innerHTML += `<br><span style="color:#666">> ${input}</span><br>RESPUESTA CORRECTA.<br>PREGUNTA 2: ¿Cuál es el código de reseteo?<br>> `;
-                        this.hackStep = 2;
-                    } else {
-                        log.innerHTML += `<br>FALLO. HACKEO CANCELADO.`;
-                        this.hackStep = 0;
-                    }
-                } else if(this.hackStep === 2) {
-                    if(input === 'RESET TERMINAL 1') {
-                        log.innerHTML += `<br><span style="color:#666">> ${input}</span><br>CÓDIGO ACEPTADO. ACCESO A DATOS SECRETOS CONCEDIDO.`;
-                        this.hackStep = 0;
-                        // Aquí podrías poner una imagen secreta o un video
-                    } else {
-                        log.innerHTML += `<br>ERROR DE CÓDIGO. BLOQUEANDO TERMINAL.`;
-                        this.hackStep = 0;
-                    }
+            } else if (this.step === 2) {
+                if (cmd === "RESET TERMINAL 1") {
+                    Security.executeReset();
+                } else {
+                    Nexus_UI.print("CÓDIGO INCORRECTO.");
+                    this.hackMode = false; this.step = 0;
                 }
-                log.scrollTop = log.scrollHeight;
-            },
-
-            showPanther() {
-                const event = document.getElementById('special-event');
-                event.style.display = 'flex';
-                setTimeout(() => { event.style.display = 'none'; }, 2000);
-            },
-
-            resetProtocol() {
-                const log = document.getElementById('log-history');
-                document.body.style.filter = "invert(1)";
-                setTimeout(() => {
-                    document.body.style.filter = "none";
-                    log.innerHTML = "---------------------------------------<br>[LOG]: BORRASTE AL PROTOTIPO 1006 DE LA MEMORIA.<br>[LOG]: BORRASTE LOS ARCHIVOS DE MIKE_V4.<br>[LOG]: TERMINAL LIMPIA PARA SAUL.<br>---------------------------------------";
-                }, 1000);
             }
-        };
-    </script>
+        },
+
+        executeReset: function() {
+            Nexus_UI.print("INICIANDO PROTOCOLO DE LIMPIEZA...", "red");
+            setTimeout(() => Nexus_UI.print("> Eliminando rastro de Mike_v4... [OK]"), 1000);
+            setTimeout(() => Nexus_UI.print("> Purgando registros Prototipo 1006... [OK]"), 2000);
+            setTimeout(() => Nexus_UI.print("> Reiniciando para SAUL..."), 3500);
+            setTimeout(() => location.reload(), 5000);
+        }
+    };
+
+    // Lógica de Comandos
+    Nexus_UI.input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const cmd = this.value.toUpperCase().trim();
+            Nexus_UI.print(`SAUL@NEXUS:\> ${cmd}`, "#aaa");
+            this.value = '';
+
+            if (Security.hackMode) {
+                Security.processHack(cmd);
+                return;
+            }
+
+            switch(cmd) {
+                case 'LISTA':
+                    Nexus_UI.print("Directorios en C:\\<br>01/01/2026  12:00  &lt;DIR&gt;  PROTOTIPOS<br>18/03/2026  09:15  &lt;DIR&gt;  PLAYTIME_CO_DATA<br>22/03/2026  10:00  &lt;FILE&gt; NOTAS_SAUL.TXT");
+                    break;
+                
+                case 'GARRAS BLANCAS 2026':
+                    Nexus_UI.triggerJumpscare();
+                    Nexus_UI.print("SISTEMA COMPROMETIDO POR ENTIDAD EXTERNA", "red");
+                    break;
+
+                case 'GARRAS 2026':
+                case 'GARRAS 2027':
+                    Nexus_UI.applyScratches();
+                    Nexus_UI.print("ARCHIVO CORRUPTO: Experimento 1006 detectado.");
+                    Nexus_UI.print("LOG: Playtime Co. no cayó por error, fue un colapso programado.");
+                    break;
+
+                case 'HACK':
+                    Security.hackMode = true;
+                    Security.processHack("");
+                    break;
+
+                case 'EXIT':
+                    Nexus_UI.print("Saliendo a NEXUS CORE...");
+                    setTimeout(() => { window.location.href = "index.html"; }, 1000);
+                    break;
+
+                case 'PROJECT_4':
+                    Nexus_UI.print("SALTO DE NÚCLEO DETECTADO. Manteniendo conexión estable.");
+                    break;
+
+                default:
+                    Nexus_UI.print("Comando no reconocido. Intente 'LISTA' o 'HACK'.");
+            }
+        }
+    });
+
+    // Iniciar Kernel
+    Kernel.boot();
+
+</script>
 </body>
 </html>
