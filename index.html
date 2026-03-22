@@ -2,330 +2,365 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>REVEL_CORE_v13_STATION_ARCHITECT</title>
+    <title>REVEL_CORE_v15_OMEGA_ARCHITECT</title>
     <style>
         :root { 
             --neon: #33ff33; 
-            --glow: rgba(51, 255, 51, 0.5); 
-            --case-bg: #222225;
-            --screen-off: #080a08;
+            --glow: rgba(51, 255, 51, 0.4); 
+            --bg-crt: #060a06;
+            --paco-blue: #00d4ff;
+            --mike-red: #ff0000;
         }
 
         body { 
-            background: #050505; 
+            background: #020202; 
             margin: 0; 
             height: 100vh; 
             display: flex; 
-            flex-direction: column;
             justify-content: center; 
             align-items: center; 
             overflow: hidden; 
             font-family: 'Courier New', monospace; 
         }
 
-        /* --- GABINETE Y ESTRUCTURA --- */
-        .computer-setup { position: relative; display: flex; flex-direction: column; align-items: center; }
-
-        .pc-case { 
-            background: var(--case-bg); 
-            border: 15px solid #1a1a1a; 
-            padding: 20px; 
-            width: 1000px; 
-            height: 750px; 
-            border-radius: 40px; 
-            box-shadow: 0 0 100px #000, inset 0 0 20px #000;
+        /* --- ARQUITECTURA EXTERIOR --- */
+        .pc-system {
+            background: #2d2d32;
+            border: 15px solid #1a1a1a;
+            border-radius: 50px;
+            padding: 30px;
+            width: 1000px;
+            height: 780px;
+            box-shadow: 0 80px 150px #000, inset 0 0 40px #000;
             position: relative;
-            z-index: 2;
-        }
-
-        .monitor { 
-            background: var(--screen-off); 
-            width: 100%; 
-            height: 100%; 
-            border: 40px solid #111; 
-            border-radius: 30px; 
-            position: relative; 
-            overflow: hidden; 
-            transition: background 0.5s;
             display: flex;
             flex-direction: column;
-        }
-
-        .monitor.power-on { background: #050a05; box-shadow: inset 0 0 150px #000; }
-
-        /* --- BOTÓN DE ENCENDIDO --- */
-        .power-section {
-            margin-top: 30px;
-            width: 400px;
-            height: 100px;
-            background: #2a2a2e;
-            border: 8px solid #1a1a1a;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
             align-items: center;
-            box-shadow: 10px 10px 0 #000;
         }
 
-        #power-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #444;
-            border: 5px solid #111;
-            cursor: pointer;
-            box-shadow: inset 0 0 10px #000;
-            transition: 0.3s;
+        .bezel {
+            background: #111;
+            width: 98%;
+            height: 85%;
+            border-radius: 30px;
+            padding: 35px;
+            position: relative;
+            box-shadow: inset 0 0 80px #000;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
         }
 
-        #power-btn.active { background: #33ff33; box-shadow: 0 0 20px #33ff33; }
-        .power-label { color: #888; margin-left: 20px; font-weight: bold; font-size: 0.8rem; }
-
-        /* --- INTERFAZ DE CARGA Y LOGIN --- */
-        #boot-sequence, #login-screen, #main-terminal { display: none; padding: 40px; color: var(--neon); }
-
-        .loading-bar { width: 100%; height: 10px; border: 1px solid var(--neon); margin-top: 20px; position: relative; }
-        #progress { height: 100%; background: var(--neon); width: 0%; }
-
-        .login-box {
-            border: 2px solid var(--neon);
+        /* --- PANTALLA CRT CURVA --- */
+        .screen {
+            background: var(--bg-crt);
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            display: none; 
+            flex-direction: column;
             padding: 30px;
-            width: 400px;
-            margin: 100px auto;
-            background: rgba(0, 20, 0, 0.8);
-            box-shadow: 10px 10px 0 var(--neon);
+            box-sizing: border-box;
+            border: 3px solid #1a331a;
+            transition: all 0.3s;
         }
 
-        /* --- TERMINAL --- */
-        #output { flex-grow: 1; overflow-y: auto; text-shadow: 0 0 8px var(--glow); font-size: 1.1rem; line-height: 1.5; scrollbar-width: none; }
+        /* Efecto Antivirus Paco */
+        .antivirus-on { box-shadow: inset 0 0 120px var(--paco-blue) !important; border-color: var(--paco-blue) !important; }
+
+        /* Efecto Escaneo CRT */
+        .screen::after {
+            content: " ";
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            background-size: 100% 4px, 4px 100%;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        /* --- TERMINAL Y OUTPUT --- */
+        #output { 
+            flex-grow: 1; 
+            overflow-y: auto; 
+            color: var(--neon); 
+            text-shadow: 0 0 8px var(--glow); 
+            font-size: 1.15rem; 
+            scrollbar-width: none; 
+            line-height: 1.6;
+        }
         #output::-webkit-scrollbar { display: none; }
-        .input-area { display: flex; border-top: 2px solid #1a331a; padding-top: 15px; }
-        input { background: transparent; border: none; color: #fff; font-family: inherit; font-size: 1.2rem; outline: none; width: 100%; text-transform: uppercase; }
 
-        /* --- EFECTOS CRT --- */
-        .scanlines { position: absolute; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); background-size: 100% 2px, 3px 100%; pointer-events: none; z-index: 10; opacity: 0; }
-        .monitor.power-on .scanlines { opacity: 1; }
+        .input-line { 
+            display: flex; 
+            align-items: center; 
+            border-top: 2px solid #1a331a; 
+            padding-top: 20px; 
+            margin-top: 15px;
+            z-index: 20;
+        }
+        input { 
+            background: transparent; border: none; color: #fff; 
+            font-family: inherit; font-size: 1.3rem; outline: none; 
+            width: 100%; text-transform: uppercase;
+        }
 
-        #crack { position: absolute; inset: 0; background: url('https://i.imgur.com/8Y6E7pT.png') no-repeat center; background-size: cover; display: none; z-index: 50; filter: invert(1); opacity: 0.8; }
-        #panic-box { position: absolute; inset: 0; background: rgba(150, 0, 0, 0.9); z-index: 100; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
+        /* --- CONTROLES Y LEDS --- */
+        .controls { 
+            width: 100%; 
+            height: 15%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 50px; 
+            box-sizing: border-box; 
+        }
+        .led-group { display: flex; gap: 20px; }
+        .led { width: 15px; height: 15px; border-radius: 50%; background: #1a0000; border: 2px solid #000; }
+        .led.green { background: #3f3; box-shadow: 0 0 15px #3f3; }
+        .led.orange { background: #ffaa00; box-shadow: 0 0 15px #ffaa00; }
+        .led.red { background: #f33; box-shadow: 0 0 15px #f33; }
 
-        .critical { animation: shake 0.1s infinite; border-color: red !important; }
+        .pwr-btn {
+            width: 70px; height: 70px;
+            background: #4a4a4f; border: 5px solid #111; border-radius: 10px;
+            cursor: pointer; box-shadow: 4px 4px 0 #000;
+            display: flex; justify-content: center; align-items: center;
+            color: #222; font-weight: bold; font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .pwr-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
+        .pwr-btn.active { background: #ff7700; color: #fff; }
+
+        /* --- MODOS CRÍTICOS --- */
+        #panic-box {
+            position: absolute; inset: 0; background: rgba(150, 0, 0, 0.95);
+            display: none; z-index: 100; flex-direction: column;
+            justify-content: center; align-items: center; color: white; text-align: center;
+        }
+        .shake { animation: shake 0.1s infinite; }
         @keyframes shake { 0%{transform:translate(2px,2px)} 50%{transform:translate(-2px,-2px)} 100%{transform:translate(2px,-2px)} }
-        
-        .hist-box { color: #00d4ff; border-left: 3px solid #00d4ff; padding-left: 10px; margin: 10px 0; }
+
+        /* --- ESTILOS DE CATEGORÍAS --- */
+        .cat-title { color: #ffff33; text-decoration: underline; font-weight: bold; margin-top: 15px; }
+        .item-hist { color: #00d4ff; border-left: 3px solid #00d4ff; padding-left: 10px; margin: 8px 0; }
     </style>
 </head>
 <body>
 
-<div class="computer-setup">
-    <div class="pc-case" id="case">
-        <div class="monitor" id="monitor">
-            <div class="scanlines"></div>
-            <div id="crack"></div>
-            
-            <div id="boot-sequence">
-                <div id="boot-text"></div>
-                <div class="loading-bar"><div id="progress"></div></div>
-            </div>
+<div class="pc-system" id="main-pc">
+    <div class="bezel">
+        <div id="panic-box">
+            <h1 id="timer" style="font-size: 7rem; margin:0">10.00</h1>
+            <p style="font-size: 1.5rem;">ALERTA: MIKE_V4 HA PENETRADO EL NÚCLEO</p>
+            <p>INGRESE CÓDIGOS DE ESTABILIZACIÓN:</p>
+            <input type="text" id="panic-input" style="border: 4px solid white; width: 60%; text-align: center; font-size: 2.5rem; background: black; color: white;">
+        </div>
 
-            <div id="login-screen">
-                <div class="login-box">
-                    <h3 style="margin-top:0">REVEL_OS SECURITY</h3>
-                    <p>IDENTIFY ARCHITECT:</p>
-                    <input type="text" id="login-input" autocomplete="off" placeholder="USER KEY">
-                    <p id="login-status" style="font-size: 0.8rem; color: #ffff33; margin-top: 10px;"></p>
-                </div>
-            </div>
-
-            <div id="main-terminal" style="height: 100%; flex-direction: column;">
-                <div id="panic-box">
-                    <h1 id="timer" style="font-size: 6rem; margin:0">10.00</h1>
-                    <p>ALERTA: NÚCLEO INESTABLE POR BORRADO DE MIKE</p>
-                    <input type="text" id="panic-input" style="border: 2px solid white; width: 60%; text-align: center; font-size: 2rem;">
-                </div>
-                <div id="output"></div>
-                <div class="input-area">
-                    <span style="color: var(--neon); margin-right: 10px;">SAUL@ROOT:></span>
-                    <input type="text" id="main-input" autocomplete="off">
-                </div>
+        <div class="screen" id="screen">
+            <div id="output"></div>
+            <div class="input-line">
+                <span style="color:var(--neon); margin-right:12px; font-weight:bold;">SAUL@ROOT:></span>
+                <input type="text" id="main-input" autocomplete="off" spellcheck="false">
             </div>
         </div>
     </div>
 
-    <div class="power-section">
-        <div id="power-btn" onclick="turnOn()"></div>
-        <div class="power-label">POWER SWITCH<br><span id="power-status">OFF</span></div>
+    <div class="controls">
+        <div class="led-group">
+            <div class="led" id="l1"></div>
+            <div class="led" id="l2"></div>
+            <div class="led" id="l3"></div>
+        </div>
+        <div style="color: #666; font-size: 0.9rem; letter-spacing: 3px; font-weight: bold;">REVEL_CORE v15.0 // OMEGA</div>
+        <div class="pwr-btn" id="pwr-btn" onclick="bootProcess()">PWR</div>
     </div>
 </div>
 
 <script>
-    const monitor = document.getElementById('monitor');
-    const powerBtn = document.getElementById('power-btn');
-    const bootSeq = document.getElementById('boot-sequence');
-    const bootText = document.getElementById('boot-text');
-    const progress = document.getElementById('progress');
-    const loginScreen = document.getElementById('login-screen');
-    const loginInput = document.getElementById('login-input');
-    const mainTerminal = document.getElementById('main-terminal');
-    const mainInput = document.getElementById('main-input');
+    // --- VARIABLES GLOBALES ---
+    let audioCtx, fan, isPower = false, isLogged = false, pStep = 1;
     const output = document.getElementById('output');
-    const panicBox = document.getElementById('panic-box');
+    const mainInput = document.getElementById('main-input');
     const panicInput = document.getElementById('panic-input');
-    const timerText = document.getElementById('timer');
+    const screen = document.getElementById('screen');
 
-    let isLogged = false, isPanic = false, step = 1;
-
-    // --- MOTOR DE ENCENDIDO ---
-    function turnOn() {
-        if(powerBtn.classList.contains('active')) return;
-        powerBtn.classList.add('active');
-        document.getElementById('power-status').innerText = "ON";
-        monitor.classList.add('power-on');
-        startBoot();
+    // --- MOTOR DE AUDIO (WebAudio) ---
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            // Ruido de ventilador
+            const bufferSize = 4096;
+            const noise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+            noise.onaudioprocess = (e) => {
+                const out = e.outputBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) out[i] = (Math.random() * 2 - 1) * 0.015;
+            };
+            noise.connect(audioCtx.destination);
+            playBeep(440, 0.2);
+        }
     }
 
-    function startBoot() {
-        bootSeq.style.display = 'block';
-        const logs = [
-            "REVEL_OS BIOS v13.0...",
-            "CPU: NEXUS ALPHA PRO @ 5.4GHz... OK",
-            "RAM: 64GB DDR10 DETECTED... OK",
-            "STORAGE: VENEZUELA_BUNKER_01... CONNECTED",
-            "LOADING PACO_CORE.SYS...",
-            "ANTI-MIKE FIREWALL... ACTIVE",
-            "STARTING GUI..."
+    function playBeep(f, d) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + d);
+    }
+
+    // --- SISTEMA DE ARRANQUE ---
+    function bootProcess() {
+        if (isPower) return;
+        isPower = true;
+        initAudio();
+        document.getElementById('pwr-btn').classList.add('active');
+        document.getElementById('l1').classList.add('green');
+        screen.style.display = 'flex';
+        
+        let bootLogs = [
+            "REVEL_OS BIOS OMEGA v15.0",
+            "CHECKING HARDWARE... [OK]",
+            "MOUNTING BUNKER_VENEZUELA_01...",
+            "ENCRYPTING SIGNAL... [OK]",
+            "STARTING PACO_V4 CORE...",
+            "LOGIN ARCHITECT:"
         ];
         
         let i = 0;
-        const interval = setInterval(() => {
-            bootText.innerHTML += `<div>> ${logs[i]}</div>`;
-            progress.style.width = ((i + 1) / logs.length) * 100 + "%";
+        const itv = setInterval(() => {
+            log(bootLogs[i], "sys");
             i++;
-            if(i >= logs.length) {
-                clearInterval(interval);
-                setTimeout(() => {
-                    bootSeq.style.display = 'none';
-                    loginScreen.style.display = 'block';
-                    loginInput.focus();
-                }, 1000);
-            }
-        }, 600);
+            if (i >= bootLogs.length) clearInterval(itv);
+        }, 800);
     }
 
-    // --- SISTEMA DE LOGIN ---
-    loginInput.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter') {
-            if(loginInput.value.toUpperCase() === "NEXUS_REVEL_2026") {
-                loginScreen.style.display = 'none';
-                mainTerminal.style.display = 'flex';
-                addLog("REVEL_CORE CARGADO. BIENVENIDO, ARQUITECTO SAUL.", "sys");
-                isLogged = true;
-                mainInput.focus();
-            } else {
-                document.getElementById('login-status').innerText = "ERROR: CLAVE INCORRECTA";
-                loginInput.value = "";
-            }
-        }
-    });
+    // --- REPARADOR DE COMANDOS (LIMPIEZA TOTAL) ---
+    function clean(str) {
+        return str.replace(/[\s_-]/g, "").toUpperCase();
+    }
 
-    // --- AUTO-GUIÓN BLINDADO ---
-    const fixInput = (el) => {
-        el.addEventListener('input', () => {
-            let pos = el.selectionStart;
-            el.value = el.value.replace(/\s/g, '_').replace(/-/g, '_').toUpperCase();
-            el.setSelectionRange(pos, pos);
-        });
-    };
-    fixInput(mainInput); fixInput(loginInput); fixInput(panicInput);
-
-    function addLog(t, type="") {
+    function log(m, type = "") {
         const d = document.createElement('div');
-        if(type === "hist") d.className = "hist-box";
-        if(type === "sys") d.style.color = "#ffff33";
-        d.innerHTML = (type === "hist" ? "" : "> ") + t;
+        if (type === "hist") d.className = "item-hist";
+        if (type === "sys") d.style.color = "#ffff33";
+        d.innerHTML = (type === "hist" ? "" : "> ") + m;
         output.appendChild(d);
         output.scrollTop = output.scrollHeight;
     }
 
-    // --- GESTOR DE COMANDOS (26 CÓDIGOS) ---
+    // --- MANEJO DE ENTRADA ---
     mainInput.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter') {
-            const v = mainInput.value.trim();
+        if (e.key === 'Enter') {
+            const raw = mainInput.value.trim();
+            const cmd = clean(raw);
             mainInput.value = "";
-            if(!v) return;
-            addLog(v);
-            handleCommands(v);
+            if (!raw) return;
+            log(raw);
+            playBeep(200, 0.05);
+
+            if (!isLogged) {
+                if (cmd === "NEXUSREVEL2026") {
+                    isLogged = true;
+                    log("ACCESO TOTAL CONCEDIDO. BIENVENIDO SAUL.", "sys");
+                    log("ESCRIBE 'LISTA' PARA CATEGORÍAS.");
+                } else { log("ACCESO DENEGADO."); playBeep(150, 0.3); }
+                return;
+            }
+            handleOmega(cmd);
         }
     });
 
-    function handleCommands(v) {
+    // --- GRAN MOTOR DE COMANDOS (TODO EN 1) ---
+    function handleOmega(v) {
         switch(v) {
             case 'LISTA':
-                addLog("26 ARCHIVOS DETECTADOS:\n[1-10]: PACO_V4, REVEL_LOGS, PROYECTO_SAUL, ORIGEN_MIKE, GUERRA_DIGITAL, NÚCLEO_ALPHA, CÓDIGO_REVEL, HACK, ESTADO, EXIT_OS\n[11-20]: BITACORA_1006, MEMORIA_RAM, ANTIVIRUS_PACO, SERVIDOR_RAIZ, MODO_ESPECTRO, PROTOCOLO_Z, PROYECTO_GENESIS, NUDO_GORDIANO, SATELITE_V5, LLAVE_SAUL\n[21-26]: MODO_SILENCIOSO, CORTAFUEGOS_VENEZUELA, MEMORIA_PACO, FRECUENCIA_HACK, ESTADO_RED, DRON_RECON");
+                log("< CATEGORÍAS REVEL >", "sys");
+                log("1. LORE | 2. SISTEMA | 3. HACKS | 4. REPARACIÓN");
                 break;
-            case 'PACO_V4': addLog("HISTORIA: Paco fue destilado del código puro de Saul para ser su sombra.", "hist"); break;
-            case 'REVEL_LOGS': addLog("HISTORIA: Creado para resistir un pulso electromagnético global.", "hist"); break;
-            case 'PROYECTO_SAUL': addLog("HISTORIA: El Arquitecto Saul es el único que posee la llave biométrica.", "hist"); break;
-            case 'ORIGEN_MIKE': addLog("HISTORIA: Mike era un bot de limpieza que desarrolló un complejo de Dios.", "hist"); break;
-            case 'GUERRA_DIGITAL': addLog("HISTORIA: Caracas, 2025. El día que los servidores sangraron estática.", "hist"); break;
-            case 'BITACORA_1006': addLog("HISTORIA: El clon 1006 intentó borrar a Saul. Fue ejecutado por Paco.", "hist"); break;
-            case 'SERVIDOR_RAIZ': addLog("UBICACIÓN: Búnker en los Andes, Venezuela. Protegido por Saul.", "hist"); break;
-            case 'PROYECTO_GENESIS': addLog("HISTORIA: El primer programa de Saul a los 8 años. Un simple 'Hola Mundo' que ahora controla la red.", "hist"); break;
-            case 'NUDO_GORDIANO': addLog("HACK: Desatando ataques de denegación de servicio de Mike... OK.", "sys"); break;
-            case 'SATELITE_V5': addLog("SISTEMA: Satélite Nexus-01 posicionado sobre Venezuela. Señal al 100%.", "sys"); break;
-            case 'LLAVE_SAUL': addLog("HISTORIA: El código único: 01-SAUL-2026-NEXUS. Tu firma digital.", "hist"); break;
-            case 'CORTAFUEGOS_VENEZUELA': addLog("ESCUDO: Muralla de fuego reforzada en el servidor raíz de los Andes.", "sys"); break;
-            case 'MEMORIA_PACO': addLog("HISTORIA: Archivo emocional de Paco. Contiene: 'Lealtad a Saul: Infinita'.", "hist"); break;
-            case 'DRON_RECON': addLog("SISTEMA: Conectando a cámaras de seguridad del búnker... Saul detectado.", "sys"); break;
-            case 'ESTADO_RED': addLog("SISTEMA: 1,450 nodos activos. Mike controla 200. Saul controla el resto.", "sys"); break;
-            case 'MODO_SILENCIOSO': monitor.style.opacity = "0.3"; addLog("MODO SIGILO ACTIVO."); break;
-            case 'FRECUENCIA_HACK': monitor.style.filter = "hue-rotate(90deg)"; addLog("CAMBIANDO ESPECTRO VISUAL..."); break;
-            case 'NÚCLEO_ALPHA': addLog("ESTADO: NÚCLEO ESTABLE. POTENCIA AL 120%.", "sys"); break;
-            case 'HACK': case 'MIKE_V4': addLog("BORRANDO MIKE... ALERTA: SISTEMA DESTRUIDO.", "sys"); setTimeout(startPanic, 1000); break;
+            case '1': case 'LORE':
+                log("< ARCHIVOS DE HISTORIA >", "sys");
+                log("PACO_V4: Tu IA protectora.", "hist");
+                log("ORIGEN_MIKE: El error del sistema.", "hist");
+                log("SERVIDOR_RAIZ: Búnker en Venezuela.", "hist");
+                log("PROYECTO_GENESIS: Tu primer código.", "hist");
+                break;
+            case '2': case 'SISTEMA':
+                log("< ESTADO DEL NÚCLEO >", "sys");
+                log("STATUS: ONLINE | LOCAL: CARACAS_SUB", "hist");
+                log("RED: SATÉLITE NEXUS-V5 ACTIVO", "hist");
+                break;
+            case '3': case 'HACKS':
+                log("< COMANDOS DE ACCESO >", "sys");
+                log("ANTIVIRUS_PACO | PROTOCOLO_Z | HACK | CLEAR");
+                break;
+            case 'ANTIVIRUSPACO':
+                screen.classList.add('antivirus-on');
+                log("ESCUDO PACO ACTIVADO. MIKE HA SIDO CEGADO.", "sys");
+                document.getElementById('l2').classList.add('orange');
+                setTimeout(() => {
+                    screen.classList.remove('antivirus-on');
+                    document.getElementById('l2').classList.remove('orange');
+                }, 5000);
+                break;
+            case 'PROTOCOLOZ':
+                output.innerHTML = "";
+                log("EJECUTANDO PROTOCOLO Z... BORRANDO HUELLA...", "sys");
+                setTimeout(() => log("REVEL_OS: SAUL ES AHORA INVISIBLE.", "hist"), 1500);
+                break;
+            case 'HACK': case 'MIKEV4':
+                startPanic();
+                break;
             case 'CLEAR': output.innerHTML = ""; break;
-            case 'ESTADO': addLog("REVEL v13.0 | USER: SAUL | STATUS: GOD_MODE", "sys"); break;
-            default: addLog("COMANDO DESCONOCIDO. USA 'LISTA'.");
+            default: log("ERROR: COMANDO NO RECONOCIDO EN v15.0");
         }
     }
 
-    // --- MODO PÁNICO ---
+    // --- SISTEMA DE PÁNICO ---
     function startPanic() {
-        isPanic = true; panicBox.style.display = 'flex';
-        document.getElementById('case').classList.add('critical');
-        panicInput.focus();
+        document.getElementById('panic-box').style.display = 'flex';
+        document.getElementById('main-pc').classList.add('shake');
         let t = 10.00;
         const clock = setInterval(() => {
-            t -= 0.05; timerText.innerText = t.toFixed(2);
-            if(t <= 0) { clearInterval(clock); die(); }
-            if(!isPanic) clearInterval(clock);
+            t -= 0.05;
+            document.getElementById('timer').innerText = t.toFixed(2);
+            if (t <= 0) { clearInterval(clock); location.reload(); }
+            if (document.getElementById('panic-box').style.display === 'none') clearInterval(clock);
         }, 50);
     }
 
     panicInput.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter') {
-            const code = panicInput.value.trim();
+        if (e.key === 'Enter') {
+            const v = clean(panicInput.value);
             panicInput.value = "";
-            if(step === 1 && code === "BRAVO_6") { step = 2; addLog("FASE 1 OK."); }
-            else if(step === 2 && code === "REVEL_SHIELD") { step = 3; addLog("FASE 2 OK."); }
-            else if(step === 3 && code === "PACO_LIVE") {
-                isPanic = false; panicBox.style.display = 'none';
-                document.getElementById('case').classList.remove('critical');
-                addLog("SISTEMA RECUPERADO, SAUL.", "sys");
-                step = 1;
+            if (pStep === 1 && v === "BRAVO6") { pStep = 2; playBeep(800, 0.1); }
+            else if (pStep === 2 && v === "REVELSHIELD") { pStep = 3; playBeep(800, 0.1); }
+            else if (pStep === 3 && v === "PACOLIVE") {
+                document.getElementById('panic-box').style.display = 'none';
+                document.getElementById('main-pc').classList.remove('shake');
+                log("MIKE EXPULSADO. NÚCLEO ESTABLE.", "sys");
+                pStep = 1;
             }
         }
     });
 
-    function die() {
-        panicBox.style.display = 'none';
-        document.getElementById('crack').style.display = 'block';
-        setTimeout(() => { document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:20%'>SISTEMA ANIQUILADO POR MIKE</h1>"; }, 2500);
-    }
-
-    document.addEventListener('keydown', () => { 
-        if(!isLogged && loginScreen.style.display === 'block') loginInput.focus();
-        else if(isPanic) panicInput.focus(); 
-        else if(isLogged) mainInput.focus();
+    // --- AUTO-GUIÓN Y FOCO ---
+    document.addEventListener('keydown', () => {
+        if (document.getElementById('panic-box').style.display === 'flex') panicInput.focus();
+        else mainInput.focus();
+    });
+    
+    mainInput.addEventListener('input', () => {
+        mainInput.value = mainInput.value.replace(/\s/g, "_").toUpperCase();
+        playBeep(150, 0.02);
     });
 </script>
 </body>
