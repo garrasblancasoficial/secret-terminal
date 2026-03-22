@@ -2,170 +2,192 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>REVEL OS CORE - TERMINAL DE SAUL</title>
+    <title>REVEL_CORE_TERMINAL</title>
     <style>
-        body { background-color: #0a0a0a; color: #33ff33; font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .pc-case { background-color: #b0b0b0; border: 10px solid #707070; padding: 30px; width: 900px; height: 650px; box-shadow: 20px 20px 0px #000; }
-        .monitor-screen { background-color: #000; border: 20px solid #222; height: 100%; padding: 25px; box-sizing: border-box; overflow: hidden; position: relative; display: flex; flex-direction: column; }
-        #display-area { flex-grow: 1; overflow-y: auto; white-space: pre-wrap; font-size: 1.1rem; margin-bottom: 10px; }
-        .input-row { display: flex; align-items: center; border-top: 1px solid #111; padding-top: 5px; }
+        body { background-color: #0a0a0a; color: #33ff33; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        
+        /* El "Cuadrado" de la PC Vieja */
+        .pc-case { background-color: #c0c0c0; border: 10px solid #808080; padding: 30px; width: 850px; height: 600px; box-shadow: 20px 20px 0px #000; position: relative; }
+        .monitor { background-color: #000; border: 20px solid #333; height: 100%; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; }
+
+        /* Pantalla de Carga */
+        #loading-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; }
+        .progress-bar { width: 300px; height: 20px; border: 2px solid #33ff33; margin-top: 20px; position: relative; }
+        #progress-fill { width: 0%; height: 100%; background: #33ff33; transition: width 0.1s; }
+
+        /* Interfaz de Terminal */
+        #terminal-ui { display: none; height: 100%; flex-direction: column; }
+        #output { flex-grow: 1; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; font-size: 1.1rem; }
+        .input-line { display: flex; border-top: 1px solid #222; padding-top: 10px; }
         input { background: transparent; border: none; color: #33ff33; font-family: inherit; font-size: 1.1rem; outline: none; width: 100%; }
-        .error { color: #ff0000; font-weight: bold; }
-        .system { color: #ffff00; }
+
         .hidden { display: none; }
-        .blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
+        .error { color: #ff0000; }
+        .sys { color: #ffff00; }
     </style>
 </head>
 <body>
 
 <div class="pc-case">
-    <div class="monitor-screen">
-        <div id="display-area"></div>
-        <div id="input-container" class="hidden">
-            <div class="input-row">
-                <span id="prompt-label">ACCESS_KEY:> </span>
-                <input type="password" id="main-input" autofocus autocomplete="off" spellcheck="false">
+    <div class="monitor">
+        
+        <div id="loading-screen">
+            <h2 id="status-text">INICIANDO REVEL CORE...</h2>
+            <div class="progress-bar"><div id="progress-fill"></div></div>
+            <p id="percentage">0%</p>
+        </div>
+
+        <div id="terminal-ui">
+            <div id="output"></div>
+            <div class="input-line">
+                <span id="prompt">ACCESS_KEY:> </span>
+                <input type="password" id="main-input" autofocus autocomplete="off">
             </div>
         </div>
+
     </div>
 </div>
 
 <script>
-    /**
-     * REVEL_OS KERNEL v4.02
-     * Administrador: SAUL
-     */
-    const PASS = "NEXUS_REVEL_2026";
-    const display = document.getElementById('display-area');
+    const fill = document.getElementById('progress-fill');
+    const percentText = document.getElementById('percentage');
+    const loadingScreen = document.getElementById('loading-screen');
+    const terminalUI = document.getElementById('terminal-ui');
+    const output = document.getElementById('output');
     const input = document.getElementById('main-input');
-    const label = document.getElementById('prompt-label');
-    const inputContainer = document.getElementById('input-container');
+    const prompt = document.getElementById('prompt');
 
     let isLogged = false;
     let hackMode = false;
     let hackStep = 0;
 
-    // 1. Secuencia de Inicio
-    const startup = [
-        "Iniciando REVEL_OS CORE...",
-        "Validando sectores de memoria... OK",
-        "Cargando REVEL_KERNEL.SYS...",
-        "Terminal de Control de Saul Detectada.",
-        "SISTEMA BLOQUEADO.",
-        "------------------------------------"
-    ];
-
-    function runBoot(i = 0) {
-        if (i < startup.length) {
-            display.innerHTML += `<div>> ${startup[i]}</div>`;
-            display.scrollTop = display.scrollHeight;
-            setTimeout(() => runBoot(i + 1), 400);
-        } else {
-            inputContainer.classList.remove('hidden');
-        }
+    // Sonido estilo Windows 95 / BIOS
+    function playBeep() {
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = context.createOscillator();
+        const gain = context.createGain();
+        osc.type = "square";
+        osc.connect(gain);
+        gain.connect(context.destination);
+        osc.frequency.value = 880; 
+        gain.gain.setValueAtTime(0.1, context.currentTime);
+        osc.start();
+        osc.stop(context.currentTime + 0.2);
     }
-    window.onload = () => runBoot();
 
-    // 2. Procesador de Comandos
+    // 1. Lógica de Carga
+    let progress = 0;
+    const loadInterval = setInterval(() => {
+        progress += Math.floor(Math.random() * 5) + 1;
+        if (progress > 100) progress = 100;
+        
+        fill.style.width = progress + "%";
+        percentText.innerText = progress + "%";
+
+        if (progress === 100) {
+            clearInterval(loadInterval);
+            playBeep();
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+                terminalUI.style.display = 'flex';
+                output.innerHTML = "SISTEMA OPERATIVO REVEL OS v4.02\nPROPIEDAD DE SAUL CORPORATION\n--------------------------------\nPOR FAVOR, IDENTIFÍQUESE.\n";
+                input.focus();
+            }, 800);
+        }
+    }, 100);
+
+    // 2. Procesador Universal de Comandos
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             const val = input.value.trim();
+            
             if (!isLogged) {
-                if (val === PASS) {
+                // LOGIN
+                if (val === "NEXUS_REVEL_2026") {
                     isLogged = true;
-                    display.innerHTML = `<div class="system">CONEXIÓN ESTABLECIDA. BIENVENIDO, SAUL.</div><div>Escriba 'HELP' para ver los comandos de administración.</div>`;
-                    label.innerText = "SAUL@REVEL:\> ";
                     input.type = "text";
+                    prompt.innerText = "SAUL@REVEL:\> ";
+                    output.innerHTML += "\n[OK] ACCESO CONCEDIDO. BIENVENIDO, SAUL.\nEscriba 'AYUDA' para nuevos comandos.\n";
                 } else {
-                    display.innerHTML += `<div class="error">> ACCESO RECHAZADO: CREDENCIAL INVÁLIDA.</div>`;
+                    output.innerHTML += "\n<span class='error'>[ERROR] CLAVE INCORRECTA.</span>\n";
                 }
             } else if (hackMode) {
-                processHack(val.toUpperCase());
+                handleHack(val.toUpperCase());
             } else {
-                processCommand(val.toUpperCase());
+                handleGlobalCommands(val.toUpperCase());
             }
+
             input.value = "";
-            display.scrollTop = display.scrollHeight;
+            output.scrollTop = output.scrollHeight;
         }
     });
 
-    function processCommand(cmd) {
-        display.innerHTML += `<div>SAUL@REVEL:\> ${cmd}</div>`;
+    function handleGlobalCommands(cmd) {
+        output.innerHTML += `\nSAUL@REVEL:\> ${cmd}`;
+        
         switch(cmd) {
-            case 'HELP':
-                display.innerHTML += `<div>Comandos Disponibles:
-- LISTA: Directorio de archivos confidenciales.
-- STATUS: Estado de los servidores Nexus.
-- HACK: Protocolo de limpieza de memoria.
-- GARRAS 2026: Diagnóstico de Playtime Co.
-- CLEAR: Limpiar buffer de pantalla.
-- EXIT: Cerrar terminal.</div>`;
+            case 'AYUDA':
+                output.innerHTML += `\nLISTA DE COMANDOS ACTUALIZADA:
+- LISTA: Ver archivos core.
+- HACK: Iniciar purga de MIKE_V4 (Protocolo Episodio Final).
+- SCAN: Escaneo de hardware.
+- GARRAS: Reporte Prototipo 1006.
+- CLEAR: Limpiar monitor.
+- REBOOT: Reiniciar sistema.`;
                 break;
             case 'LISTA':
-                display.innerHTML += `<div>Directorio C:\\SAUL_RECORDS:
- > MIKE_OLD_DATA.OLD (Protegido)
- > PROTOTIPO_1006_LOGS.EXE
- > REVEL_FINAL_SCRIPT.TXT
- > NEXUS_CORE_V4.BIN</div>`;
+                output.innerHTML += `\nC:\\REVEL_DATA\\:
+ > REVEL_CORE.SYS
+ > PROTOTIPO_1006.LOG
+ > MIKE_OLD_FILES (SOLO LECTURA)`;
                 break;
-            case 'STATUS':
-                display.innerHTML += `<div>ESTADO: <span class="system">ONLINE</span>
-USUARIO: SAUL (ADMIN_MASTER)
-SISTEMA OPERATIVO: REVEL OS 4.02
-CONEXIONES ACTIVAS: 1</div>`;
+            case 'SCAN':
+                output.innerHTML += `\n<span class='sys'>ESCANEANDO... 
+CPU: OPTIMIZADO
+DISCO: 98% DISPONIBLE
+USUARIO: SAUL (ÚNICO DUEÑO)</span>`;
                 break;
-            case 'GARRAS 2026':
-                display.innerHTML += `<div class="error">!!! DETECTADA INTERFERENCIA DEL PROTOTIPO 1006 !!!
-Se han encontrado restos de Playtime Co. en la red Nexus.
-Protocolo de defensa activado.</div>`;
+            case 'GARRAS':
+                output.innerHTML += `\n<span class='error'>[!] ALERTA: Rasguños detectados en el sector 7.
+Origen: Playtime Co. Records.
+Estado: El Prototipo 1006 está observando.</span>`;
                 break;
             case 'HACK':
                 hackMode = true;
                 hackStep = 1;
-                display.innerHTML += `<div class="system">INICIANDO PROTOCOLO DE HACKEO INTERACTIVO...</div>
-<div>PREGUNTA 1: ¿Quién es el único dueño legítimo de este sistema?</div>`;
+                output.innerHTML += `\n\n<span class='sys'>[MODO HACK ACTIVADO]</span>
+PREGUNTA 1: ¿Quién es el dueño legítimo de Nexus?`;
                 break;
-            case 'CLEAR': display.innerHTML = ""; break;
-            case 'EXIT': location.reload(); break;
-            default: display.innerHTML += `<div>'${cmd}' no reconocido. Escriba 'HELP'.</div>`;
+            case 'CLEAR': output.innerHTML = ""; break;
+            case 'REBOOT': location.reload(); break;
+            default: output.innerHTML += `\nComando '${cmd}' no reconocido. Intenta 'AYUDA'.`;
         }
     }
 
-    // 3. Lógica del Comando HACK (Episodio Final)
-    function processHack(val) {
+    function handleHack(val) {
         if (hackStep === 1) {
             if (val === "SAUL") {
-                display.innerHTML += `<div class="system">IDENTIDAD VERIFICADA.</div>
-<div>PREGUNTA 2: ¿Cuál es el código de purga de archivos legacy? (Pista: RESET TERMINAL 1)</div>`;
+                output.innerHTML += `\n<span class='sys'>IDENTIDAD OK.</span>\nPREGUNTA 2: ¿Código de borrado? (Pista: RESET TERMINAL 1)`;
                 hackStep = 2;
             } else {
-                display.innerHTML += `<div class="error">IDENTIDAD FALSA. HACKEO ABORTADO.</div>`;
+                output.innerHTML += `\n<span class='error'>HACK FALLIDO.</span>`;
                 hackMode = false;
             }
         } else if (hackStep === 2) {
             if (val === "RESET TERMINAL 1") {
-                display.innerHTML += `<div class="system">CÓDIGO ACEPTADO. ACCEDIENDO AL NÚCLEO...</div>
-<div class="blink">CARGANDO MÓDULO DE ELIMINACIÓN...</div>`;
-                setTimeout(() => {
-                    display.innerHTML += `<div class="error">DETECTADO ARCHIVO: MIKE_V4.LOG</div>
-<div>¿Desea borrar permanentemente a MIKE_V4 del sistema? (S/N)</div>`;
-                    hackStep = 3;
-                }, 2000);
+                output.innerHTML += `\n<span class='sys'>ACCESO AL NÚCLEO...</span>\n¿BORRAR DEFINITIVAMENTE A MIKE_V4? (S/N)`;
+                hackStep = 3;
             } else {
-                display.innerHTML += `<div class="error">CÓDIGO INCORRECTO.</div>`;
+                output.innerHTML += `\n<span class='error'>CÓDIGO ERRÓNEO.</span>`;
                 hackMode = false;
             }
         } else if (hackStep === 3) {
             if (val === "S" || val === "SI") {
-                display.innerHTML += `<div class="error">BORRANDO DATOS DE MIKE_V4... [##########] 100%</div>
-<div class="system">LIMPIEZA COMPLETADA. SAUL ES EL ÚNICO REGISTRO.</div>`;
-                hackMode = false;
-                hackStep = 0;
+                output.innerHTML += `\n<span class='error'>ELIMINANDO A MIKE_V4... 100%</span>\n<span class='sys'>BORRADO COMPLETADO. SOLO QUEDA SAUL.</span>`;
             } else {
-                display.innerHTML += `<div>OPERACIÓN CANCELADA. ELIMINACIÓN FALLIDA.</div>`;
-                hackMode = false;
+                output.innerHTML += `\nBORRADO CANCELADO.`;
             }
+            hackMode = false;
         }
     }
 </script>
