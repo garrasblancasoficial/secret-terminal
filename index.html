@@ -2,82 +2,76 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>REVEL_CORE_v5.0_SAUL_OMNI</title>
+    <title>REVEL_CORE_v7.0_SACRIFICIO</title>
     <style>
-        body { background-color: #050505; color: #33ff33; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; transition: color 0.3s; }
-        .pc-case { background-color: #b0b0b0; border: 10px solid #707070; padding: 25px; width: 850px; height: 600px; box-shadow: 20px 20px 0px #000; position: relative; }
-        .monitor { background-color: #000; border: 20px solid #222; height: 100%; padding: 15px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        body { background-color: #050505; color: #33ff33; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .pc-case { background-color: #b0b0b0; border: 10px solid #707070; padding: 25px; width: 900px; height: 650px; box-shadow: 25px 25px 0px #000; position: relative; }
+        .monitor { background-color: #000; border: 20px solid #222; height: 100%; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: inset 0 0 100px rgba(0,255,0,0.1); }
         
         #output { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; white-space: pre-wrap; font-size: 1.1rem; margin-bottom: 10px; scrollbar-width: none; }
         #output::-webkit-scrollbar { display: none; }
         .input-line { display: flex; border-top: 2px solid #111; padding-top: 10px; flex-shrink: 0; }
-        input { background: transparent; border: none; color: inherit; font-family: inherit; font-size: 1.1rem; outline: none; width: 100%; }
+        input { background: transparent; border: none; color: inherit; font-family: inherit; font-size: 1.1rem; outline: none; width: 100%; text-transform: uppercase; }
 
-        /* Efectos Especiales */
-        #crack { position: absolute; inset: 0; background: url('https://i.imgur.com/8Y6E7pT.png'); background-size: cover; display: none; z-index: 500; pointer-events: none; filter: invert(1); opacity: 0.8; }
-        #static { position: absolute; inset: 0; background: url('https://media.giphy.com/media/oEI9uWUicG57q/giphy.gif'); display: none; z-index: 499; opacity: 0.4; }
-        #countdown-box { position: absolute; inset: 0; background: black; color: red; display: none; z-index: 400; flex-direction: column; justify-content: center; align-items: center; font-size: 6rem; font-weight: bold; }
-        #corrupt-screen { position: absolute; inset: 0; background: rgba(180, 0, 0, 0.95); color: #fff; display: none; z-index: 100; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 5px solid red; animation: flicker 0.1s infinite; }
-        #game-box { position: absolute; inset: 20px; background: #000; border: 3px solid #33ff33; display: none; z-index: 110; flex-direction: column; align-items: center; justify-content: center; }
+        /* EFECTOS DE DESTRUCCIÓN */
+        #crack { position: absolute; inset: 0; background: url('https://i.imgur.com/8Y6E7pT.png'); background-size: cover; display: none; z-index: 500; pointer-events: none; filter: invert(1); opacity: 0.9; }
+        #static { position: absolute; inset: 0; background: url('https://media.giphy.com/media/oEI9uWUicG57q/giphy.gif'); display: none; z-index: 499; opacity: 0.6; }
+        #countdown-box { position: absolute; inset: 0; background: rgba(0,0,0,0.9); color: #ff0000; display: none; z-index: 450; flex-direction: column; justify-content: center; align-items: center; font-size: 5rem; font-weight: bold; text-align: center; }
 
         #loader { position: absolute; inset: 0; background: #000; z-index: 600; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .bar { width: 300px; height: 20px; border: 2px solid #33ff33; margin-top: 15px; }
+        .bar { width: 350px; height: 20px; border: 2px solid #33ff33; margin-top: 15px; }
         #fill { width: 0%; height: 100%; background: #33ff33; }
 
-        .sys { color: #ffff33; }
         .red { color: #ff0000; font-weight: bold; }
-        .critical { animation: shake 0.1s infinite; }
-        @keyframes flicker { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
-        @keyframes shake { 0% { transform: translate(2px,2px); } 50% { transform: translate(-2px,-2px); } 100% { transform: translate(2px,-2px); } }
+        .sys { color: #ffff33; }
+        .critical { animation: shake 0.1s infinite; border: 5px solid red; }
+        @keyframes shake { 0% { transform: translate(3px,3px); } 50% { transform: translate(-3px,-3px); } 100% { transform: translate(3px,-3px); } }
     </style>
 </head>
-<body id="main-body">
+<body>
 
 <div class="pc-case">
     <div id="loader">
-        <h2>REVEL_CORE_v5.0_BOOT...</h2>
+        <h2>INICIANDO NÚCLEO...</h2>
         <div class="bar"><div id="fill"></div></div>
     </div>
 
     <div class="monitor" id="monitor-box">
         <div id="crack"></div>
         <div id="static"></div>
-        <div id="countdown-box">10.00</div>
-
-        <div id="corrupt-screen">
-            <h1>ERROR: PROTOCOLO_CORRUPTO_ID_CHECK</h1>
-            <p>SISTEMA BLOQUEADO. MEMORIA DAÑADA.</p>
-            <p style="font-size: 0.8rem; margin-top: 20px;">[Pulse 'R' para Reanimación Saul]</p>
-        </div>
-
-        <div id="game-box">
-            <h3>PRUEBA DE REFLEJOS</h3>
-            <canvas id="gameCanvas" width="400" height="150"></canvas>
-            <p>SALTA CON [ESPACIO]</p>
+        <div id="countdown-box">
+            <div id="timer-val">10.00</div>
+            <div style="font-size: 1.5rem; color: white;">¡SISTEMA EN COLAPSO!</div>
+            <div style="font-size: 1rem; color: yellow; margin-top: 10px;">INGRESE CÓDIGOS DE ESTABILIZACIÓN:</div>
+            <input type="text" id="panic-input" style="border: 1px solid white; width: 60%; text-align: center; margin-top: 10px;" autofocus autocomplete="off">
         </div>
 
         <div id="output"></div>
         <div id="input-area" class="input-line">
-            <span id="prompt">ACCESS_KEY:> </span>
-            <input type="password" id="main-input" autofocus autocomplete="off">
+            <span id="prompt">SYSTEM@SAUL:> </span>
+            <input type="text" id="main-input" autofocus autocomplete="off">
         </div>
     </div>
 </div>
 
 <script>
     const output = document.getElementById('output');
-    const input = document.getElementById('main-input');
+    const mainInput = document.getElementById('main-input');
+    const panicInput = document.getElementById('panic-input');
     const loader = document.getElementById('loader');
     const fill = document.getElementById('fill');
-    const corrupt = document.getElementById('corrupt-screen');
     const countdownBox = document.getElementById('countdown-box');
+    const timerVal = document.getElementById('timer-val');
     const monitor = document.getElementById('monitor-box');
-    const gameBox = document.getElementById('game-box');
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
 
-    let isLogged = false, failed = 0, hackMode = false, hackStep = 0;
-    let colorMode = 0;
+    let isLogged = false, isPanic = false, panicStep = 1;
+    let p = 0;
+
+    // Carga inicial
+    const loadInt = setInterval(() => {
+        p += 5; if(p >= 100) { clearInterval(loadInt); loader.style.display='none'; addLog("BIENVENIDO SAUL. SISTEMA ONLINE."); }
+        fill.style.width = p + "%";
+    }, 40);
 
     function addLog(t, c="") {
         const d = document.createElement('div');
@@ -87,107 +81,84 @@
         output.scrollTop = output.scrollHeight;
     }
 
-    // CARGA
-    let p = 0;
-    const loadInt = setInterval(() => {
-        p += 10; if(p >= 100) { p = 100; clearInterval(loadInt); loader.style.display='none'; addLog("SISTEMA OPERATIVO REVEL v5.0 ONLINE."); }
-        fill.style.width = p + "%";
-    }, 40);
-
-    // MOTOR DE COMANDOS
-    input.addEventListener('keydown', (e) => {
+    // LÓGICA DE ENTRADA PRINCIPAL
+    mainInput.addEventListener('keydown', (e) => {
         if(e.key === 'Enter') {
-            const v = input.value.toUpperCase().trim();
-            input.value = "";
-            
+            const v = mainInput.value.toUpperCase().trim();
+            mainInput.value = "";
+            addLog(v);
+
             if(!isLogged) {
-                if(v === "NEXUS_REVEL_2026" || v === "REVEL2026") {
-                    isLogged = true; input.type = "text"; failed = 0;
-                    document.getElementById('prompt').innerText = "SAUL@REVEL:\> ";
-                    addLog("ACCESO CONCEDIDO. HOLA SAUL.", "sys");
-                } else {
-                    failed++;
-                    if(failed >= 3) { corrupt.style.display = 'flex'; input.disabled = true; }
-                    else { addLog("CLAVE INCORRECTA. INTENTOS: " + (3-failed), "red"); }
-                }
-            } else if (hackMode) {
-                handleHack(v);
+                if(v === "NEXUS_REVEL_2026") {
+                    isLogged = true;
+                    addLog("CONEXIÓN ESTABLECIDA.", "sys");
+                } else { addLog("CLAVE INCORRECTA.", "red"); }
             } else {
-                handleGlobal(v);
+                if(v === 'LISTA') {
+                    addLog("ARCHIVOS:\n- MIKE_V4 (PURGA DE SEGURIDAD)\n- 1006_LOGS\n- PACO_CORE");
+                } else if(v === 'HACK' || v === 'MIKE_V4') {
+                    addLog("INICIANDO PURGA DE MIKE_V4...", "red");
+                    addLog("ADVERTENCIA: ELIMINAR A MIKE COMPROMETE EL NÚCLEO.", "red");
+                    setTimeout(startPanic, 1500);
+                } else if(v === 'SCAN') {
+                    addLog("DUEÑO: SAUL. ESTADO: PROTEGIDO.", "sys");
+                } else if(v === 'CLEAR') { output.innerHTML = ""; }
+                else { addLog("COMANDO NO RECONOCIDO."); }
             }
         }
     });
 
-    function handleGlobal(cmd) {
-        addLog(cmd);
-        switch(cmd) {
-            case 'PACO': addLog("Paco: Aquí estoy, Saul. Esperando órdenes de purga."); break;
-            case 'ESTADO': addLog("CPU: 99% | VOLTAJE: INESTABLE | NÚCLEO: ROJO", "red"); break;
-            case 'MEMORIA': addLog("FRAGMENTO: '...Mike no debe ver el código 1006...'"); break;
-            case 'SISTEMA': 
-                const colors = ["#33ff33", "#ffb000", "#00d4ff"];
-                colorMode = (colorMode + 1) % 3;
-                document.getElementById('main-body').style.color = colors[colorMode];
-                addLog("Cambiando espectro visual."); break;
-            case 'ALERTA': monitor.classList.toggle('critical'); addLog("Sirenas activadas."); break;
-            case 'LISTA': addLog("- MIKE_V5.EXE\n- 1006_LOGS\n- OMEGA_PROTO"); break;
-            case 'SCAN': addLog("USUARIO VALIDADO: SAUL.", "sys"); break;
-            case 'HACK': hackMode = true; hackStep = 1; addLog("INICIANDO HACK. ¿Dueño?", "sys"); break;
-            case 'ADIOS': startDestruction(); break;
-            case 'CLEAR': output.innerHTML = ""; break;
-            default: addLog("COMANDO DESCONOCIDO.");
-        }
-    }
-
-    function handleHack(v) {
-        if(hackStep === 1 && v === "SAUL") { addLog("OK. ¿Código?", "sys"); hackStep = 2; }
-        else if(hackStep === 2 && v === "RESET TERMINAL 1") { addLog("¿Borrar MIKE? (S/N)", "red"); hackStep = 3; }
-        else if(hackStep === 3 && (v === "S" || v === "SI")) { addLog("MIKE PURGADO."); setTimeout(startDestruction, 1000); }
-        else { addLog("HACK FALLIDO."); hackMode = false; }
-    }
-
-    function startDestruction() {
-        input.disabled = true;
-        document.getElementById('input-area').style.display = 'none';
-        output.style.display = 'none';
+    // LÓGICA DE PÁNICO (CUENTA REGRESIVA)
+    function startPanic() {
+        isPanic = true;
         countdownBox.style.display = 'flex';
         monitor.classList.add('critical');
+        panicInput.focus();
+        
         let count = 10.00;
         const timer = setInterval(() => {
             count -= 0.05;
-            countdownBox.innerText = count.toFixed(2);
+            timerVal.innerText = count.toFixed(2);
+            
             if(count <= 0) {
                 clearInterval(timer);
-                countdownBox.style.display = 'none';
-                document.getElementById('crack').style.display = 'block'; // ROMPE PANTALLA
-                document.getElementById('static').style.display = 'block';
-                setTimeout(() => { document.body.innerHTML = ""; document.body.style.backgroundColor = "black"; }, 3000);
+                endSystem();
             }
+            if(!isPanic) { clearInterval(timer); }
         }, 50);
     }
 
-    // REANIMACIÓN 'R'
-    window.addEventListener('keydown', (e) => {
-        if(corrupt.style.display === 'flex' && e.key.toLowerCase() === 'r') {
-            corrupt.style.display = 'none'; gameBox.style.display = 'flex';
-            let px = 50, py = 120, jumping = false, ox = 400;
-            const loop = setInterval(() => {
-                ctx.clearRect(0,0,400,150);
-                ctx.fillStyle = "#33ff33"; ctx.fillRect(px, py, 20, 20);
-                ctx.fillStyle = "red"; ctx.fillRect(ox, 120, 20, 20);
-                ox -= 8; if(ox < -20) ox = 400;
-                if(jumping) { py -= 8; if(py < 60) jumping = false; }
-                else if(py < 120) py += 8;
-                if(ox < 70 && ox > 30 && py > 100) ox = 400;
-            }, 30);
-            window.addEventListener('keydown', (ev) => { if(ev.code === 'Space' && py === 120) jumping = true; });
-            setTimeout(() => { 
-                clearInterval(loop); 
-                gameBox.innerHTML = "<h3>CÓDIGO: REVEL2026</h3>"; 
-                setTimeout(() => { gameBox.style.display = 'none'; input.disabled = false; input.focus(); }, 3000);
-            }, 6000);
+    panicInput.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') {
+            const v = panicInput.value.toUpperCase().trim();
+            panicInput.value = "";
+            
+            if(panicStep === 1 && v === "BRAVO_6") {
+                panicStep = 2;
+                addLog("CÓDIGO 1 ACEPTADO.", "sys");
+            } else if(panicStep === 2 && v === "REVEL_SHIELD") {
+                panicStep = 3;
+                addLog("CÓDIGO 2 ACEPTADO.", "sys");
+            } else if(panicStep === 3 && v === "PACO_LIVE") {
+                isPanic = false;
+                countdownBox.style.display = 'none';
+                monitor.classList.remove('critical');
+                addLog("ESTABILIZACIÓN COMPLETA. MIKE HA SIDO BORRADO PARA SIEMPRE.", "sys");
+            } else {
+                addLog("ERROR EN CÓDIGO. EL TIEMPO SIGUE CORRIENDO.", "red");
+            }
         }
     });
+
+    function endSystem() {
+        countdownBox.style.display = 'none';
+        document.getElementById('crack').style.display = 'block'; 
+        document.getElementById('static').style.display = 'block';
+        setTimeout(() => { 
+            document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:20%'>CONEXIÓN PERDIDA: SISTEMA DESTRUIDO</h1>"; 
+            document.body.style.backgroundColor = "black"; 
+        }, 3000);
+    }
 </script>
 </body>
 </html>
