@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>NEXUS TERMINAL - PROPIEDAD DE SAUL</title>
+    <style>
+        /* ESTO ES EL CSS: Define que la pantalla sea negra y parezca un monitor */
+        body {
+            background-color: #000; /* Fondo 100% oscuro */
+            color: #00ff41; /* Verde Matrix/Terminal */
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .crt-monitor {
+            width: 90%;
+            height: 80%;
+            border: 15px solid #222;
+            border-radius: 20px;
+            background: #050505;
+            padding: 20px;
+            box-shadow: inset 0 0 100px #000, 0 0 30px rgba(0, 255, 65, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Efecto de líneas de TV antigua */
+        .crt-monitor::after {
+            content: " ";
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+
+        #terminal-log {
+            height: 90%;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+
+        .input-line { display: flex; font-size: 1.2rem; }
+        
+        input {
+            background: transparent;
+            border: none;
+            color: #00ff41;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="crt-monitor">
+        <div id="terminal-log">REVEL OS [Version 4.02.2026]
+(c) Saul Corporation. Todos los derechos reservados.
+
+Escriba 'LISTA' para ver archivos o 'GARRAS 2026' para diagnóstico.
+-----------------------------------------------------------------</div>
+        
+        <div class="input-line">
+            <span>SAUL@NEXUS:\> </span>
+            <input type="text" id="prompt" autofocus spellcheck="false">
+        </div>
+    </div>
+
+    <script>
+        /* ESTO ES EL JAVASCRIPT: La lógica de los comandos */
+        const prompt = document.getElementById('prompt');
+        const log = document.getElementById('terminal-log');
+
+        prompt.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const cmd = prompt.value.toUpperCase().trim();
+                
+                // Imprimir lo que escribiste
+                log.innerHTML += `\nSAUL@NEXUS:\> ${cmd}`;
+
+                // Lógica de respuesta
+                if (cmd === 'GARRAS 2026') {
+                    log.innerHTML += `\n[ALERTA] ARCHIVO CORRUPTO: PROTOTIPO 1006 DETECTADO.`;
+                    document.body.style.filter = "invert(1)";
+                    setTimeout(() => document.body.style.filter = "none", 200);
+                } 
+                else if (cmd === 'LISTA') {
+                    log.innerHTML += `\n> ARCHIVOS: \n  - NOTAS_SECRETAS.TXT\n  - PROTOCOLO_SAUL.EXE`;
+                }
+                else if (cmd === 'SAUL') {
+                    log.innerHTML += `\nBIENVENIDO, SEÑOR. EL SISTEMA ESTÁ A SU DISPOSICIÓN.`;
+                }
+                else {
+                    log.innerHTML += `\n'${cmd}' no se reconoce como un comando interno.`;
+                }
+
+                prompt.value = "";
+                log.scrollTop = log.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
