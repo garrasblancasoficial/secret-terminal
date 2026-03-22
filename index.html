@@ -2,46 +2,56 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>REVEL_CORE_v4.07_REPARADO</title>
+    <title>REVEL_CORE_v5.0_SAUL_OMNI</title>
     <style>
-        body { background-color: #050505; color: #33ff33; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        body { background-color: #050505; color: #33ff33; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; transition: color 0.3s; }
         .pc-case { background-color: #b0b0b0; border: 10px solid #707070; padding: 25px; width: 850px; height: 600px; box-shadow: 20px 20px 0px #000; position: relative; }
         .monitor { background-color: #000; border: 20px solid #222; height: 100%; padding: 15px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; overflow: hidden; }
         
         #output { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; white-space: pre-wrap; font-size: 1.1rem; margin-bottom: 10px; scrollbar-width: none; }
         #output::-webkit-scrollbar { display: none; }
-
         .input-line { display: flex; border-top: 2px solid #111; padding-top: 10px; flex-shrink: 0; }
-        input { background: transparent; border: none; color: #33ff33; font-family: inherit; font-size: 1.1rem; outline: none; width: 100%; }
+        input { background: transparent; border: none; color: inherit; font-family: inherit; font-size: 1.1rem; outline: none; width: 100%; }
 
-        #corrupt-screen { position: absolute; inset: 0; background: rgba(160, 0, 0, 0.95); color: #fff; display: none; z-index: 100; flex-direction: column; justify-content: center; align-items: center; text-align: center; animation: flicker 0.1s infinite; }
+        /* Efectos Especiales */
+        #crack { position: absolute; inset: 0; background: url('https://i.imgur.com/8Y6E7pT.png'); background-size: cover; display: none; z-index: 500; pointer-events: none; filter: invert(1); opacity: 0.8; }
+        #static { position: absolute; inset: 0; background: url('https://media.giphy.com/media/oEI9uWUicG57q/giphy.gif'); display: none; z-index: 499; opacity: 0.4; }
+        #countdown-box { position: absolute; inset: 0; background: black; color: red; display: none; z-index: 400; flex-direction: column; justify-content: center; align-items: center; font-size: 6rem; font-weight: bold; }
+        #corrupt-screen { position: absolute; inset: 0; background: rgba(180, 0, 0, 0.95); color: #fff; display: none; z-index: 100; flex-direction: column; justify-content: center; align-items: center; text-align: center; border: 5px solid red; animation: flicker 0.1s infinite; }
         #game-box { position: absolute; inset: 20px; background: #000; border: 3px solid #33ff33; display: none; z-index: 110; flex-direction: column; align-items: center; justify-content: center; }
-        #loader { position: absolute; inset: 0; background: #000; z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+
+        #loader { position: absolute; inset: 0; background: #000; z-index: 600; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .bar { width: 300px; height: 20px; border: 2px solid #33ff33; margin-top: 15px; }
         #fill { width: 0%; height: 100%; background: #33ff33; }
 
-        @keyframes flicker { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.85; } }
-        .red { color: #ff0000; font-weight: bold; }
         .sys { color: #ffff33; }
+        .red { color: #ff0000; font-weight: bold; }
+        .critical { animation: shake 0.1s infinite; }
+        @keyframes flicker { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+        @keyframes shake { 0% { transform: translate(2px,2px); } 50% { transform: translate(-2px,-2px); } 100% { transform: translate(2px,-2px); } }
     </style>
 </head>
-<body>
+<body id="main-body">
 
 <div class="pc-case">
     <div id="loader">
-        <h2>INICIANDO NÚCLEO...</h2>
+        <h2>REVEL_CORE_v5.0_BOOT...</h2>
         <div class="bar"><div id="fill"></div></div>
     </div>
 
-    <div class="monitor">
+    <div class="monitor" id="monitor-box">
+        <div id="crack"></div>
+        <div id="static"></div>
+        <div id="countdown-box">10.00</div>
+
         <div id="corrupt-screen">
-            <h1>ERROR: ID_CORRUPTO_1006</h1>
+            <h1>ERROR: PROTOCOLO_CORRUPTO_ID_CHECK</h1>
             <p>SISTEMA BLOQUEADO. MEMORIA DAÑADA.</p>
             <p style="font-size: 0.8rem; margin-top: 20px;">[Pulse 'R' para Reanimación Saul]</p>
         </div>
 
         <div id="game-box">
-            <h2 id="game-title">PRUEBA DE SALTOS</h2>
+            <h3>PRUEBA DE REFLEJOS</h3>
             <canvas id="gameCanvas" width="400" height="150"></canvas>
             <p>SALTA CON [ESPACIO]</p>
         </div>
@@ -60,15 +70,14 @@
     const loader = document.getElementById('loader');
     const fill = document.getElementById('fill');
     const corrupt = document.getElementById('corrupt-screen');
+    const countdownBox = document.getElementById('countdown-box');
+    const monitor = document.getElementById('monitor-box');
     const gameBox = document.getElementById('game-box');
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    let failed = 0;
-    let isLogged = false;
-    let isGameOn = false;
-    let hackMode = false;
-    let hackStep = 0;
+    let isLogged = false, failed = 0, hackMode = false, hackStep = 0;
+    let colorMode = 0;
 
     function addLog(t, c="") {
         const d = document.createElement('div');
@@ -81,41 +90,30 @@
     // CARGA
     let p = 0;
     const loadInt = setInterval(() => {
-        p += 10; if(p >= 100) { p = 100; clearInterval(loadInt); loader.style.display='none'; addLog("SISTEMA REVEL_OS LISTO. IDENTIFÍQUESE."); }
+        p += 10; if(p >= 100) { p = 100; clearInterval(loadInt); loader.style.display='none'; addLog("SISTEMA OPERATIVO REVEL v5.0 ONLINE."); }
         fill.style.width = p + "%";
-    }, 50);
+    }, 40);
 
-    // PROCESADOR DE ENTRADA
+    // MOTOR DE COMANDOS
     input.addEventListener('keydown', (e) => {
         if(e.key === 'Enter') {
             const v = input.value.toUpperCase().trim();
             input.value = "";
             
-            // FASE 1: LOGIN
             if(!isLogged) {
                 if(v === "NEXUS_REVEL_2026" || v === "REVEL2026") {
-                    isLogged = true;
-                    input.type = "text";
-                    failed = 0;
+                    isLogged = true; input.type = "text"; failed = 0;
                     document.getElementById('prompt').innerText = "SAUL@REVEL:\> ";
-                    addLog("ACCESO CONCEDIDO. BIENVENIDO SEÑOR SAUL.", "sys");
+                    addLog("ACCESO CONCEDIDO. HOLA SAUL.", "sys");
                 } else {
                     failed++;
-                    if(failed >= 3) {
-                        corrupt.style.display = 'flex';
-                        input.disabled = true;
-                    } else {
-                        addLog("CLAVE INCORRECTA. INTENTOS RESTANTES: " + (3-failed), "red");
-                    }
+                    if(failed >= 3) { corrupt.style.display = 'flex'; input.disabled = true; }
+                    else { addLog("CLAVE INCORRECTA. INTENTOS: " + (3-failed), "red"); }
                 }
-            } 
-            // FASE 2: COMANDOS (Solo si ya entró)
-            else {
-                if(hackMode) {
-                    handleHack(v);
-                } else {
-                    handleGlobal(v);
-                }
+            } else if (hackMode) {
+                handleHack(v);
+            } else {
+                handleGlobal(v);
             }
         }
     });
@@ -123,54 +121,73 @@
     function handleGlobal(cmd) {
         addLog(cmd);
         switch(cmd) {
-            case 'LISTA': addLog("ARCHIVOS:\n- MIKE_OLD.LOG\n- 1006_DATA.SYS\n- REVEL_CORE.EXE"); break;
-            case 'SCAN': addLog("ESTADO: NÚCLEO PROTEGIDO. DUEÑO: SAUL.", "sys"); break;
-            case 'GARRAS': addLog("ADVERTENCIA: ACTIVIDAD DETECTADA EN EL SUBSUELO.", "red"); break;
-            case 'HACK': hackMode = true; hackStep = 1; addLog("INICIANDO PURGA. ¿Quién es el dueño?", "sys"); break;
+            case 'PACO': addLog("Paco: Aquí estoy, Saul. Esperando órdenes de purga."); break;
+            case 'ESTADO': addLog("CPU: 99% | VOLTAJE: INESTABLE | NÚCLEO: ROJO", "red"); break;
+            case 'MEMORIA': addLog("FRAGMENTO: '...Mike no debe ver el código 1006...'"); break;
+            case 'SISTEMA': 
+                const colors = ["#33ff33", "#ffb000", "#00d4ff"];
+                colorMode = (colorMode + 1) % 3;
+                document.getElementById('main-body').style.color = colors[colorMode];
+                addLog("Cambiando espectro visual."); break;
+            case 'ALERTA': monitor.classList.toggle('critical'); addLog("Sirenas activadas."); break;
+            case 'LISTA': addLog("- MIKE_V5.EXE\n- 1006_LOGS\n- OMEGA_PROTO"); break;
+            case 'SCAN': addLog("USUARIO VALIDADO: SAUL.", "sys"); break;
+            case 'HACK': hackMode = true; hackStep = 1; addLog("INICIANDO HACK. ¿Dueño?", "sys"); break;
+            case 'ADIOS': startDestruction(); break;
             case 'CLEAR': output.innerHTML = ""; break;
-            case 'REBOOT': location.reload(); break;
-            default: addLog("COMANDO NO RECONOCIDO.");
+            default: addLog("COMANDO DESCONOCIDO.");
         }
     }
 
     function handleHack(v) {
-        if(hackStep === 1 && v === "SAUL") { addLog("OK. ¿Código de borrado?", "sys"); hackStep = 2; }
-        else if(hackStep === 2 && v === "RESET TERMINAL 1") { addLog("¿Borrar a MIKE? (S/N)", "red"); hackStep = 3; }
-        else if(hackStep === 3 && (v === "S" || v === "SI")) { addLog("MIKE ELIMINADO. SISTEMA PURGADO.", "sys"); hackMode = false; }
-        else { addLog("ERROR EN SECUENCIA. HACK ABORTADO."); hackMode = false; }
+        if(hackStep === 1 && v === "SAUL") { addLog("OK. ¿Código?", "sys"); hackStep = 2; }
+        else if(hackStep === 2 && v === "RESET TERMINAL 1") { addLog("¿Borrar MIKE? (S/N)", "red"); hackStep = 3; }
+        else if(hackStep === 3 && (v === "S" || v === "SI")) { addLog("MIKE PURGADO."); setTimeout(startDestruction, 1000); }
+        else { addLog("HACK FALLIDO."); hackMode = false; }
     }
 
-    // MINIJUEGO 'R'
+    function startDestruction() {
+        input.disabled = true;
+        document.getElementById('input-area').style.display = 'none';
+        output.style.display = 'none';
+        countdownBox.style.display = 'flex';
+        monitor.classList.add('critical');
+        let count = 10.00;
+        const timer = setInterval(() => {
+            count -= 0.05;
+            countdownBox.innerText = count.toFixed(2);
+            if(count <= 0) {
+                clearInterval(timer);
+                countdownBox.style.display = 'none';
+                document.getElementById('crack').style.display = 'block'; // ROMPE PANTALLA
+                document.getElementById('static').style.display = 'block';
+                setTimeout(() => { document.body.innerHTML = ""; document.body.style.backgroundColor = "black"; }, 3000);
+            }
+        }, 50);
+    }
+
+    // REANIMACIÓN 'R'
     window.addEventListener('keydown', (e) => {
         if(corrupt.style.display === 'flex' && e.key.toLowerCase() === 'r') {
-            corrupt.style.display = 'none';
-            gameBox.style.display = 'flex';
-            runGame();
+            corrupt.style.display = 'none'; gameBox.style.display = 'flex';
+            let px = 50, py = 120, jumping = false, ox = 400;
+            const loop = setInterval(() => {
+                ctx.clearRect(0,0,400,150);
+                ctx.fillStyle = "#33ff33"; ctx.fillRect(px, py, 20, 20);
+                ctx.fillStyle = "red"; ctx.fillRect(ox, 120, 20, 20);
+                ox -= 8; if(ox < -20) ox = 400;
+                if(jumping) { py -= 8; if(py < 60) jumping = false; }
+                else if(py < 120) py += 8;
+                if(ox < 70 && ox > 30 && py > 100) ox = 400;
+            }, 30);
+            window.addEventListener('keydown', (ev) => { if(ev.code === 'Space' && py === 120) jumping = true; });
+            setTimeout(() => { 
+                clearInterval(loop); 
+                gameBox.innerHTML = "<h3>CÓDIGO: REVEL2026</h3>"; 
+                setTimeout(() => { gameBox.style.display = 'none'; input.disabled = false; input.focus(); }, 3000);
+            }, 6000);
         }
     });
-
-    let px = 50, py = 120, jumping = false, ox = 400;
-    function runGame() {
-        isGameOn = true;
-        let t = 0;
-        const loop = setInterval(() => {
-            if(!isGameOn) { clearInterval(loop); return; }
-            ctx.clearRect(0,0,400,150);
-            ctx.fillStyle = "#33ff33"; ctx.fillRect(px, py, 20, 20); // Saul
-            ctx.fillStyle = "red"; ctx.fillRect(ox, 120, 20, 20); // Obstáculo
-            ox -= 8; if(ox < -20) ox = 400;
-            if(jumping) { py -= 8; if(py < 60) jumping = false; }
-            else if(py < 120) py += 8;
-            if(ox < 70 && ox > 30 && py > 100) ox = 400;
-            t++;
-            if(t > 150) { 
-                isGameOn = false; 
-                gameBox.innerHTML = "<h3 style='color:white'>REANIMACIÓN LOGRADA<br>CÓDIGO: <span style='color:yellow'>REVEL2026</span></h3>";
-                setTimeout(() => { gameBox.style.display = 'none'; input.disabled = false; input.focus(); }, 3000);
-            }
-        }, 30);
-    }
-    window.addEventListener('keydown', (e) => { if(e.code === 'Space' && py === 120) jumping = true; });
 </script>
 </body>
 </html>
