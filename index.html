@@ -2,53 +2,43 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>REVEL_CORE_v7.0_SACRIFICIO</title>
+    <title>REVEL_CORE_v9.0_INTEGRATED</title>
     <style>
-        body { background-color: #050505; color: #33ff33; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        .pc-case { background-color: #b0b0b0; border: 10px solid #707070; padding: 25px; width: 900px; height: 650px; box-shadow: 25px 25px 0px #000; position: relative; }
-        .monitor { background-color: #000; border: 20px solid #222; height: 100%; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: inset 0 0 100px rgba(0,255,0,0.1); }
+        body { background: #050505; color: #33ff33; font-family: 'Courier New', monospace; margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .pc-case { background: #b0b0b0; border: 10px solid #707070; padding: 25px; width: 900px; height: 650px; box-shadow: 25px 25px 0 #000; position: relative; }
+        .monitor { background: #000; border: 20px solid #222; height: 100%; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: inset 0 0 100px rgba(0,255,0,0.1); }
         
-        #output { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; white-space: pre-wrap; font-size: 1.1rem; margin-bottom: 10px; scrollbar-width: none; }
+        #output { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; white-space: pre-wrap; font-size: 1.1rem; margin-bottom: 10px; scrollbar-width: none; line-height: 1.4; }
         #output::-webkit-scrollbar { display: none; }
-        .input-line { display: flex; border-top: 2px solid #111; padding-top: 10px; flex-shrink: 0; }
+        .input-line { display: flex; border-top: 2px solid #111; padding-top: 10px; }
         input { background: transparent; border: none; color: inherit; font-family: inherit; font-size: 1.1rem; outline: none; width: 100%; text-transform: uppercase; }
 
-        /* EFECTOS DE DESTRUCCIÓN */
-        #crack { position: absolute; inset: 0; background: url('https://i.imgur.com/8Y6E7pT.png'); background-size: cover; display: none; z-index: 500; pointer-events: none; filter: invert(1); opacity: 0.9; }
-        #static { position: absolute; inset: 0; background: url('https://media.giphy.com/media/oEI9uWUicG57q/giphy.gif'); display: none; z-index: 499; opacity: 0.6; }
-        #countdown-box { position: absolute; inset: 0; background: rgba(0,0,0,0.9); color: #ff0000; display: none; z-index: 450; flex-direction: column; justify-content: center; align-items: center; font-size: 5rem; font-weight: bold; text-align: center; }
-
-        #loader { position: absolute; inset: 0; background: #000; z-index: 600; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .bar { width: 350px; height: 20px; border: 2px solid #33ff33; margin-top: 15px; }
-        #fill { width: 0%; height: 100%; background: #33ff33; }
-
-        .red { color: #ff0000; font-weight: bold; }
-        .sys { color: #ffff33; }
-        .critical { animation: shake 0.1s infinite; border: 5px solid red; }
-        @keyframes shake { 0% { transform: translate(3px,3px); } 50% { transform: translate(-3px,-3px); } 100% { transform: translate(3px,-3px); } }
+        /* EFECTOS ESPECIALES */
+        #crack { position: absolute; inset: 0; background: url('https://i.imgur.com/8Y6E7pT.png') no-repeat center; background-size: cover; display: none; z-index: 500; filter: invert(1); opacity: 0.9; pointer-events: none; }
+        #static { position: absolute; inset: 0; background: url('https://media.giphy.com/media/oEI9uWUicG57q/giphy.gif'); display: none; z-index: 499; opacity: 0.5; pointer-events: none; }
+        #panic-box { position: absolute; inset: 0; background: rgba(200, 0, 0, 0.9); color: white; display: none; z-index: 450; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        
+        .critical { animation: shake 0.1s infinite; border: 5px solid red !important; }
+        @keyframes shake { 0% { transform: translate(2px,2px); } 50% { transform: translate(-2px,-2px); } 100% { transform: translate(2px,-2px); } }
     </style>
 </head>
 <body>
 
-<div class="pc-case">
-    <div id="loader">
-        <h2>INICIANDO NÚCLEO...</h2>
-        <div class="bar"><div id="fill"></div></div>
-    </div>
-
-    <div class="monitor" id="monitor-box">
+<div class="pc-case" id="case">
+    <div class="monitor" id="monitor">
         <div id="crack"></div>
         <div id="static"></div>
-        <div id="countdown-box">
-            <div id="timer-val">10.00</div>
-            <div style="font-size: 1.5rem; color: white;">¡SISTEMA EN COLAPSO!</div>
-            <div style="font-size: 1rem; color: yellow; margin-top: 10px;">INGRESE CÓDIGOS DE ESTABILIZACIÓN:</div>
-            <input type="text" id="panic-input" style="border: 1px solid white; width: 60%; text-align: center; margin-top: 10px;" autofocus autocomplete="off">
+        
+        <div id="panic-box">
+            <h1 id="timer">10.00</h1>
+            <p>BORRADO DE MIKE DETECTADO: SISTEMA INESTABLE</p>
+            <p>INGRESE CÓDIGOS DE REPARACIÓN:</p>
+            <input type="text" id="panic-input" style="border: 2px solid white; width: 50%; text-align: center; font-size: 2rem; color: white;">
         </div>
 
         <div id="output"></div>
         <div id="input-area" class="input-line">
-            <span id="prompt">SYSTEM@SAUL:> </span>
+            <span id="prompt">REVEL@SAUL:> </span>
             <input type="text" id="main-input" autofocus autocomplete="off">
         </div>
     </div>
@@ -58,107 +48,107 @@
     const output = document.getElementById('output');
     const mainInput = document.getElementById('main-input');
     const panicInput = document.getElementById('panic-input');
-    const loader = document.getElementById('loader');
-    const fill = document.getElementById('fill');
-    const countdownBox = document.getElementById('countdown-box');
-    const timerVal = document.getElementById('timer-val');
-    const monitor = document.getElementById('monitor-box');
+    const panicBox = document.getElementById('panic-box');
+    const timerText = document.getElementById('timer');
+    const monitor = document.getElementById('monitor');
 
-    let isLogged = false, isPanic = false, panicStep = 1;
-    let p = 0;
-
-    // Carga inicial
-    const loadInt = setInterval(() => {
-        p += 5; if(p >= 100) { clearInterval(loadInt); loader.style.display='none'; addLog("BIENVENIDO SAUL. SISTEMA ONLINE."); }
-        fill.style.width = p + "%";
-    }, 40);
+    let isLogged = false, isPanic = false, step = 1;
 
     function addLog(t, c="") {
         const d = document.createElement('div');
-        if(c) d.className = c;
+        if(c) d.style.color = c;
         d.innerText = "> " + t;
         output.appendChild(d);
         output.scrollTop = output.scrollHeight;
     }
 
-    // LÓGICA DE ENTRADA PRINCIPAL
+    /* --- PARCHE DE AUTO-GUION (ELIMINA EL PROBLEMA DE LA RAYITA) --- */
+    const fixInput = (el) => {
+        el.addEventListener('input', () => {
+            let pos = el.selectionStart;
+            el.value = el.value.replace(/\s/g, '_').replace(/-/g, '_').toUpperCase();
+            el.setSelectionRange(pos, pos);
+        });
+    };
+    fixInput(mainInput);
+    fixInput(panicInput);
+
+    /* --- MOTOR PRINCIPAL --- */
     mainInput.addEventListener('keydown', (e) => {
         if(e.key === 'Enter') {
-            const v = mainInput.value.toUpperCase().trim();
+            const cmd = mainInput.value.trim();
             mainInput.value = "";
-            addLog(v);
+            if(!cmd) return;
+            addLog(cmd);
 
             if(!isLogged) {
-                if(v === "NEXUS_REVEL_2026") {
+                if(cmd === "NEXUS_REVEL_2026") {
                     isLogged = true;
-                    addLog("CONEXIÓN ESTABLECIDA.", "sys");
-                } else { addLog("CLAVE INCORRECTA.", "red"); }
+                    addLog("SISTEMA DESBLOQUEADO. BIENVENIDO SAUL.", "#ffff33");
+                } else { addLog("CLAVE ERRÓNEA.", "red"); }
             } else {
-                if(v === 'LISTA') {
-                    addLog("ARCHIVOS:\n- MIKE_V4 (PURGA DE SEGURIDAD)\n- 1006_LOGS\n- PACO_CORE");
-                } else if(v === 'HACK' || v === 'MIKE_V4') {
-                    addLog("INICIANDO PURGA DE MIKE_V4...", "red");
-                    addLog("ADVERTENCIA: ELIMINAR A MIKE COMPROMETE EL NÚCLEO.", "red");
-                    setTimeout(startPanic, 1500);
-                } else if(v === 'SCAN') {
-                    addLog("DUEÑO: SAUL. ESTADO: PROTEGIDO.", "sys");
-                } else if(v === 'CLEAR') { output.innerHTML = ""; }
-                else { addLog("COMANDO NO RECONOCIDO."); }
+                if(cmd === 'LISTA') {
+                    addLog("ARCHIVOS:\n- MIKE_V4 (SISTEMA)\n- 1006_LOGS\n- PACO_CORE");
+                } else if(cmd === 'MIKE_V4') {
+                    addLog("BORRANDO MIKE_V4... FALLO CRÍTICO ENCONTRADO.", "red");
+                    setTimeout(startPanic, 1000);
+                } else if(cmd === '1006_LOGS') {
+                    addLog("DETALLE: 1006 está observando desde el servidor raíz.");
+                } else if(cmd === 'PACO_CORE') {
+                    addLog("DETALLE: Paco está listo para defender a Saul.");
+                } else if(cmd === 'CLEAR') {
+                    output.innerHTML = "";
+                } else {
+                    addLog("COMANDO DESCONOCIDO. USA 'LISTA'.");
+                }
             }
         }
     });
 
-    // LÓGICA DE PÁNICO (CUENTA REGRESIVA)
+    /* --- SECUENCIA DE PÁNICO --- */
     function startPanic() {
         isPanic = true;
-        countdownBox.style.display = 'flex';
+        panicBox.style.display = 'flex';
         monitor.classList.add('critical');
         panicInput.focus();
-        
-        let count = 10.00;
-        const timer = setInterval(() => {
-            count -= 0.05;
-            timerVal.innerText = count.toFixed(2);
-            
-            if(count <= 0) {
-                clearInterval(timer);
-                endSystem();
-            }
-            if(!isPanic) { clearInterval(timer); }
+        let time = 10.00;
+        const clock = setInterval(() => {
+            time -= 0.05;
+            timerText.innerText = time.toFixed(2);
+            if(time <= 0) { clearInterval(clock); die(); }
+            if(!isPanic) clearInterval(clock);
         }, 50);
     }
 
     panicInput.addEventListener('keydown', (e) => {
         if(e.key === 'Enter') {
-            const v = panicInput.value.toUpperCase().trim();
+            const code = panicInput.value.trim();
             panicInput.value = "";
-            
-            if(panicStep === 1 && v === "BRAVO_6") {
-                panicStep = 2;
-                addLog("CÓDIGO 1 ACEPTADO.", "sys");
-            } else if(panicStep === 2 && v === "REVEL_SHIELD") {
-                panicStep = 3;
-                addLog("CÓDIGO 2 ACEPTADO.", "sys");
-            } else if(panicStep === 3 && v === "PACO_LIVE") {
+            if(step === 1 && code === "BRAVO_6") { step = 2; addLog("CÓDIGO 1: OK", "yellow"); }
+            else if(step === 2 && code === "REVEL_SHIELD") { step = 3; addLog("CÓDIGO 2: OK", "yellow"); }
+            else if(step === 3 && code === "PACO_LIVE") {
                 isPanic = false;
-                countdownBox.style.display = 'none';
+                panicBox.style.display = 'none';
                 monitor.classList.remove('critical');
-                addLog("ESTABILIZACIÓN COMPLETA. MIKE HA SIDO BORRADO PARA SIEMPRE.", "sys");
-            } else {
-                addLog("ERROR EN CÓDIGO. EL TIEMPO SIGUE CORRIENDO.", "red");
-            }
+                addLog("ESTABILIZACIÓN EXITOSA. MIKE HA SIDO ELIMINADO.", "#33ff33");
+            } else { addLog("ERROR EN CÓDIGO.", "red"); }
         }
     });
 
-    function endSystem() {
-        countdownBox.style.display = 'none';
-        document.getElementById('crack').style.display = 'block'; 
+    function die() {
+        panicBox.style.display = 'none';
+        document.getElementById('crack').style.display = 'block';
         document.getElementById('static').style.display = 'block';
-        setTimeout(() => { 
-            document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:20%'>CONEXIÓN PERDIDA: SISTEMA DESTRUIDO</h1>"; 
-            document.body.style.backgroundColor = "black"; 
+        setTimeout(() => {
+            document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:20%'>SISTEMA DESTRUIDO</h1>";
+            document.body.style.backgroundColor = "black";
         }, 3000);
     }
+
+    // Asegura que siempre puedas escribir
+    document.addEventListener('click', () => {
+        if(isPanic) panicInput.focus(); else mainInput.focus();
+    });
 </script>
 </body>
 </html>
